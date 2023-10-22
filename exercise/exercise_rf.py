@@ -7,6 +7,7 @@ import argparse
 import datetime
 import os
 import sys
+import time
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -107,7 +108,7 @@ def main(save_fig: bool, result_dir: str, num_trees: int, tree_depth: int):
     # add legend
     plt.legend(loc='lower left')
 
-    plt.show()
+    #plt.show()
 
     # save figure if flag is set
     if save_fig:
@@ -121,7 +122,8 @@ if __name__ == "__main__":
 
     script_dir = os.path.dirname(sys.argv[0])
 
-    parser = argparse.ArgumentParser(description='2-dimensional point classification with decision forests')
+    # conflict_handler --> enables redefinition of argument
+    parser = argparse.ArgumentParser(description='2-dimensional point classification with decision forests', conflict_handler='resolve')
 
     parser.add_argument(
         '--save_fig',
@@ -137,19 +139,43 @@ if __name__ == "__main__":
         help='Directory for results.'
     )
 
-    parser.add_argument(
-        '--num_trees',
-        type=int,
-        default=1,
-        help='Number of trees in the random forest classifier.'
-    )
+    # parser.add_argument(
+    #     '--num_trees',
+    #     type=int,
+    #     default=1,
+    #     help='Number of trees in the random forest classifier.'
+    # )
+    #
+    # parser.add_argument(
+    #     '--tree_depth',
+    #     type=int,
+    #     default=2,
+    #     help='Maximum depth of the trees in the random forest classifier.'
+    # )
+    #
+    # args = parser.parse_args()
+    # main(args.save_fig, args.result_dir, args.num_trees, args.tree_depth)
 
-    parser.add_argument(
-        '--tree_depth',
-        type=int,
-        default=1,
-        help='Maximum depth of the trees in the random forest classifier.'
-    )
 
-    args = parser.parse_args()
-    main(args.save_fig, args.result_dir, args.num_trees, args.tree_depth)
+    n_trees = 20
+    max_depth = 10
+
+    for depth in range(2, max_depth+1):
+        parser.add_argument(
+            '--tree_depth',
+            type=int,
+            default=depth,
+            help='Maximum depth of the trees in the random forest classifier.'
+        )
+
+        for trees in range(1, n_trees+1):
+            parser.add_argument(
+                '--num_trees',
+                type=int,
+                default=trees,
+                help='Number of trees in the random forest classifier.'
+            )
+
+            args = parser.parse_args()
+            main(args.save_fig, args.result_dir, args.num_trees, args.tree_depth)
+            time.sleep(1)
