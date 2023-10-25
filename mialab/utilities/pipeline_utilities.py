@@ -67,6 +67,7 @@ class FeatureExtractor:
         Returns:
             structure.BrainImage: The image with extracted features.
         """
+        #starttodo
         # todo: add T2w features
         # t2w --> added: intensity, gradient intensity
         warnings.warn('No features from T2-weighted image extracted.')
@@ -86,6 +87,8 @@ class FeatureExtractor:
                 sitk.GradientMagnitude(self.img.images[structure.BrainImageTypes.T1w])
             self.img.feature_images[FeatureImageTypes.T2w_GRADIENT_INTENSITY] = \
                 sitk.GradientMagnitude(self.img.images[structure.BrainImageTypes.T2w])
+
+        #endtodo
 
         self._generate_feature_matrix()
 

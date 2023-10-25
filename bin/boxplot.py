@@ -5,6 +5,7 @@ import os
 
 
 def main():
+    #starttodo
     # load the "results.csv" file from the mia-results directory
     # read the data into a list
     # plot the Dice coefficients per label (i.e. white matter, gray matter, hippocampus, amygdala, thalamus)
@@ -31,6 +32,7 @@ def main():
     # but you will need to install it first ('pip install pandas') and import it to this file ('import pandas as pd')
     # pass  # pass is just a placeholder if there is no other code
 
+    #endtodo
 
 if __name__ == '__main__':
     main()
