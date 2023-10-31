@@ -73,12 +73,19 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
     labels_train = np.concatenate([img.feature_matrix[1] for img in images]).squeeze()
 
     #starttodo
-    # todo: set proper random forest parameters
+    # set proper random forest parameters
+    # warnings.warn('Random forest parameters not properly set.')
+
     # n_estimator (number of trees) increased (1 --> 10)
-    warnings.warn('Random forest parameters not properly set.')
+    # default 10 (sklearn <0.22), default 100 (sklearn > 0.22)
+    # best result for base pipeline --> n_estimators = 10, max_depth = 90
+    # best result considering calculation time --> n_estimators = 10, max_depth =30
+
+    # parameters to be adjusted
+    n_estimators = 10
+    max_depth = 30
     forest = sk_ensemble.RandomForestClassifier(max_features=images[0].feature_matrix[0].shape[1],
-                                                n_estimators=10,
-                                                max_depth=5)
+                                                n_estimators=n_estimators, max_depth=max_depth)
     #endtodo
 
     start_time = timeit.default_timer()
@@ -127,18 +134,22 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
         images_prediction.append(image_prediction)
         images_probabilities.append(image_probabilities)
 
-    # post-process segmentation and evaluate with post-processing
-    post_process_params = {'simple_post': True}
-    images_post_processed = putil.post_process_batch(images_test, images_prediction, images_probabilities,
-                                                     post_process_params, multi_process=True)
+    #stardtodo
+    # --> postprocessing removed
 
+    # post-process segmentation and evaluate with post-processing
+    # post_process_params = {'simple_post': True}
+    # images_post_processed = putil.post_process_batch(images_test, images_prediction, images_probabilities,
+    #                                                  post_process_params, multi_process=True)
+    #
     for i, img in enumerate(images_test):
-        evaluator.evaluate(images_post_processed[i], img.images[structure.BrainImageTypes.GroundTruth],
-                           img.id_ + '-PP')
+    #     evaluator.evaluate(images_post_processed[i], img.images[structure.BrainImageTypes.GroundTruth],
+    #                        img.id_ + '-PP')
 
         # save results
         sitk.WriteImage(images_prediction[i], os.path.join(result_dir, images_test[i].id_ + '_SEG.mha'), True)
-        sitk.WriteImage(images_post_processed[i], os.path.join(result_dir, images_test[i].id_ + '_SEG-PP.mha'), True)
+        # sitk.WriteImage(images_post_processed[i], os.path.join(result_dir, images_test[i].id_ + '_SEG-PP.mha'), True)
+    #endtodo
 
     # use two writers to report the results
     os.makedirs(result_dir, exist_ok=True)  # generate result directory, if it does not exists
@@ -157,6 +168,24 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
 
     # clear results such that the evaluator is ready for the next evaluation
     evaluator.clear()
+
+    #starttodo
+    # generate textfile with run-parameter
+    filename = os.path.join(result_dir, 'run-parameter.txt')
+    f = open(filename, mode='w')
+    f.write('## Random forrest ##' + '\n')
+    f.write('n_estimators: ' + str(n_estimators) + '\n')
+    f.write('max_depth: ' + str(max_depth) + '\n')
+    f.write('\n')
+
+    f.write('## Notes ##' + '\n')
+    f.write('no feature extension')
+
+    f.close()
+    #stoptodo
+
+
+
 
 
 if __name__ == "__main__":
