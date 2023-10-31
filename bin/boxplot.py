@@ -11,22 +11,47 @@ def main():
     # plot the Dice coefficients per label (i.e. white matter, gray matter, hippocampus, amygdala, thalamus)
     # in a boxplot
 
-    directory = "2023-10-24-12-17-44" # must be adjusted
+    foldername = "2023-10-30-23-04-44" # must be adjusted
+    directory = os.path.join('mia-result', foldername)
     filename = "results.csv"
-    filepath = os.path.join('mia-result', directory, filename)
-
+    filepath = os.path.join(directory, filename)
     data = pd.read_csv(filepath, sep=';', header=0, index_col=["SUBJECT"])
-    print(data)
+
+    # Plot Parameter
+    diceName = 'DICE'
+    diceYlim = [0, 1]
+    HDRFDSTName = 'HDRFDST'
+    HDRFDSTYlim = [0, 50] # upper limit probably must be adjusted
+    subjectName = 'Subject'
+    labelName = 'Label'
 
     # dice and housdorffdistance per subject (over all labels)
-    data.boxplot(by='SUBJECT', column=['DICE'], rot=45, grid=False)
-    data.boxplot(by='SUBJECT', column=['HDRFDST'], rot=45, grid=False)
+    Dice_allS = data.boxplot(by='SUBJECT', column=['DICE'], rot=45, grid=False).get_figure()
+    plt.xlabel(subjectName)
+    plt.ylabel(diceName)
+    plt.ylim(diceYlim)
+    HDRFDST_allS = data.boxplot(by='SUBJECT', column=['HDRFDST'], rot=45, grid=False).get_figure()
+    plt.xlabel(subjectName)
+    plt.ylabel(HDRFDSTName)
+    plt.ylim(HDRFDSTYlim)
 
     # dice and housdorffdistance per label (over all subjects)
-    data.boxplot(by='LABEL', column=['DICE'], grid=False)
-    data.boxplot(by='LABEL', column=['HDRFDST'], grid=False)
+    Dice_allL = data.boxplot(by='LABEL', column=['DICE'], grid=False).get_figure()
+    plt.xlabel(labelName)
+    plt.ylabel(diceName)
+    plt.ylim(diceYlim)
+    HDRFDST_allL = data.boxplot(by='LABEL', column=['HDRFDST'], grid=False).get_figure()
+    plt.xlabel(labelName)
+    plt.ylabel(HDRFDSTName)
+    plt.ylim(HDRFDSTYlim)
 
-    plt.show()
+    # save figures
+    Dice_allS.savefig(os.path.join(directory, 'Dice_allS.png'))
+    HDRFDST_allS.savefig(os.path.join(directory, 'HDRFDST_allS.png'))
+    Dice_allL.savefig(os.path.join(directory, 'Dice_allL.png'))
+    HDRFDST_allL.savefig(os.path.join(directory, 'HDRFDST_allL.png'))
+
+    #plt.show()
 
     # alternative: instead of manually loading/reading the csv file you could also use the pandas package
     # but you will need to install it first ('pip install pandas') and import it to this file ('import pandas as pd')
