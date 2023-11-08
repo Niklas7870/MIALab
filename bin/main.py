@@ -62,8 +62,9 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
                           'normalization_pre': True,
                           'registration_pre': True,
                           'coordinates_feature': True,
-                          'intensity_feature': True,
-                          'gradient_intensity_feature': True}
+                          'intensity_feature': False,
+                          'gradient_intensity_feature': False,
+                          'neighborhood_feature': True}
 
     # load images for training and pre-process
     images = putil.pre_process_batch(crawler.data, pre_process_params, multi_process=False)
@@ -85,7 +86,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
     n_estimators = 10
     max_depth = 30
     forest = sk_ensemble.RandomForestClassifier(max_features=images[0].feature_matrix[0].shape[1],
-                                                n_estimators=n_estimators, max_depth=max_depth)
+                                                n_estimators=n_estimators, max_depth=max_depth, random_state=0)
     #endtodo
 
     start_time = timeit.default_timer()
@@ -180,6 +181,8 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
 
     f.write('## Notes ##' + '\n')
     f.write('no feature extension')
+
+    f.write(str(pre_process_params))
 
     f.close()
     #stoptodo

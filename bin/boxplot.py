@@ -11,7 +11,7 @@ def main():
     # plot the Dice coefficients per label (i.e. white matter, gray matter, hippocampus, amygdala, thalamus)
     # in a boxplot
 
-    foldername = "2023-10-30-23-04-44" # must be adjusted
+    foldername = "2023-11-07-14-12-44" # must be adjusted
     directory = os.path.join('mia-result', foldername)
     filename = "results.csv"
     filepath = os.path.join(directory, filename)

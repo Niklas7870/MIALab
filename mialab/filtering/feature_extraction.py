@@ -92,6 +92,7 @@ def first_order_texture_features_function(values):
             - percentile75th
             - percentile90th
     """
+
     eps = sys.float_info.epsilon  # to avoid division by zero
 
     mean = np.mean(values)
@@ -130,6 +131,7 @@ class NeighborhoodFeatureExtractor(fltr.Filter):
         self.neighborhood_radius = 3
         self.kernel = kernel
         self.function = function_
+        print("1")
 
     def execute(self, image: sitk.Image, params: fltr.FilterParams = None) -> sitk.Image:
         """Executes a neighborhood feature extractor on an image.
@@ -144,6 +146,8 @@ class NeighborhoodFeatureExtractor(fltr.Filter):
         Raises:
             ValueError: If image is not 3-D.
         """
+
+        print("3")
 
         if image.GetDimension() != 3:
             raise ValueError('image needs to be 3-D')
