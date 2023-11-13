@@ -9,42 +9,73 @@ def main():
 
     foldername = 'mia-result'
     filename = 'results.csv'
-    data = pd.DataFrame()
+    dataLS = pd.DataFrame() # holds eval value for individual subjects and labels
+    dataS = pd.DataFrame() # holds eval value for individual subjects (label mean value)
 
-    # concat of all results into one dataframe
+    # concat of all results into two dataframes (once all subject and label / once all subject with mean over all label)
     for subdir, dirs, files in os.walk(foldername):
         for dir in dirs:
+            # individual subjects and labels
             filepath = os.path.join(foldername, dir, filename)
-            df = pd.read_csv(filepath, sep=';', header=0)
-            df['FOLDER'] = [dir] * (df.shape[0])
-            data = pd.concat([data, df])
+            dfLS = pd.read_csv(filepath, sep=';', header=0)
+            dfLS['FOLDER'] = [dir] * (dfLS.shape[0])
+            dataLS = pd.concat([dataLS, dfLS])
 
-    data = data.set_index('FOLDER')
+            # individual subjects (label mean value)
+            subjects = dfLS['SUBJECT'].unique()
+            for subject in subjects:
+                dfsubject = dfLS[dfLS['SUBJECT'] == subject]
+                meanDICE = dfsubject['DICE'].mean()
+                meanHDRFDST = dfsubject['HDRFDST'].mean()
+                dfS = pd.DataFrame([[subject, meanDICE, meanHDRFDST, dir]], columns=['SUBJECT', 'DICE', 'HDRFDST', 'FOLDER'])
+                dataS = pd.concat([dataS, dfS])
+
+
+    dataLS = dataLS.set_index('FOLDER')
+    dataS = dataS.set_index('FOLDER')
 
     # Plot Parameter
     diceName = 'DICE'
-    diceYlim = [0, 1]
+    diceYlimLS = [0, 1]
+    diceYlimS = [0.5, 0.8]
     HDRFDSTName = 'HDRFDST'
-    HDRFDSTYlim = [0, 50]  # upper limit probably must be adjusted
+    HDRFDSTYlimLS = [0, 30]
+    HDRFDSTYlimS = [0, 15]
     folderName = 'Folder'
 
-    # dice and housdorffdistance per folder (random forest parameter settings) (over all subject & labels)
-    Dice_mean = data.boxplot(by='FOLDER', column=['DICE'], rot=90, grid=False).get_figure()
+    # dice and housdorffdistance per folder (over all subject & labels)
+    Dice_meanLS = dataLS.boxplot(by='FOLDER', column=['DICE'], rot=90, grid=False).get_figure()
     plt.xlabel(folderName)
     plt.ylabel(diceName)
-    plt.ylim(diceYlim)
-    HDRFDST_mean = data.boxplot(by='FOLDER', column=['HDRFDST'], rot=90, grid=False).get_figure()
+    plt.ylim(diceYlimLS)
+    HDRFDST_meanLS = dataLS.boxplot(by='FOLDER', column=['HDRFDST'], rot=90, grid=False).get_figure()
     plt.xlabel(folderName)
     plt.ylabel(HDRFDSTName)
-    plt.ylim(HDRFDSTYlim)
+    plt.ylim(HDRFDSTYlimLS)
+
+    # dice and housdorffdistance per folder (over all subject (label mean value))
+    Dice_meanS = dataS.boxplot(by='FOLDER', column=['DICE'], rot=90, grid=False).get_figure()
+    plt.xlabel(folderName)
+    plt.ylabel(diceName)
+    plt.ylim(diceYlimS)
+    HDRFDST_meanS = dataS.boxplot(by='FOLDER', column=['HDRFDST'], rot=90, grid=False).get_figure()
+    plt.xlabel(folderName)
+    plt.ylabel(HDRFDSTName)
+    plt.ylim(HDRFDSTYlimS)
 
     # save figures
-    #Dice_mean.set_size_inches(16, 9)
-    Dice_mean.tight_layout()
-    Dice_mean.savefig(os.path.join(foldername, 'Dice_mean.png'), dpi=600)
-    HDRFDST_mean.tight_layout()
-    #HDRFDST_mean.set_size_inches(16, 9)
-    HDRFDST_mean.savefig(os.path.join(foldername, 'HDRFDST_allS.png'), dpi=600)
+    # Dice_meanLS.set_size_inches(16, 9)
+    Dice_meanLS.tight_layout()
+    Dice_meanLS.savefig(os.path.join(foldername, 'Dice_meanLS.png'), dpi=600)
+    # HDRFDST_meanLS.set_size_inches(16, 9)
+    HDRFDST_meanLS.tight_layout()
+    HDRFDST_meanLS.savefig(os.path.join(foldername, 'HDRFDST_meanLS.png'), dpi=600)
+    # Dice_meanS.set_size_inches(16, 9)
+    Dice_meanS.tight_layout()
+    Dice_meanS.savefig(os.path.join(foldername, 'Dice_meanS.png'), dpi=600)
+    # HDRFDST_meanS.set_size_inches(16, 9)
+    HDRFDST_meanS.tight_layout()
+    HDRFDST_meanS.savefig(os.path.join(foldername, 'HDRFDST_meanS.png'), dpi=600)
 
     #plt.show()
 
