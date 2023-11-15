@@ -93,7 +93,7 @@ class FeatureExtractor:
 
         if self.neighborhood_feature:
             neighborhood_feature = fltr_feat.NeighborhoodFeatureExtractor()
-            print("2")
+            #print("2")
             self.img.feature_images[FeatureImageTypes.T1w_NEIGHBORHOOD] = \
                 neighborhood_feature.execute(self.img.images[structure.BrainImageTypes.T1w])
             #self.img.feature_images[FeatureImageTypes.T2w_NEIGHBORHOOD] = \

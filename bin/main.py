@@ -180,9 +180,10 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
     f.write('\n')
 
     f.write('## Notes ##' + '\n')
-    f.write('no feature extension')
+    f.write('no feature extension' + '\n')
 
-    f.write(str(pre_process_params))
+    for p, v in pre_process_params.items():
+        f.write(p + ': ' + str(v) + '\n')
 
     f.close()
     #stoptodo

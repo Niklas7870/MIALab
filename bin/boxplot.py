@@ -11,8 +11,17 @@ def main():
     # plot the Dice coefficients per label (i.e. white matter, gray matter, hippocampus, amygdala, thalamus)
     # in a boxplot
 
-    foldername = "2023-11-07-14-12-44" # must be adjusted
-    directory = os.path.join('mia-result', foldername)
+    def all_subdirs_of(b='./mia-result'):
+        result = []
+        for d in os.listdir(b):
+            bd = os.path.join(b, d)
+            if os.path.isdir(bd): result.append(bd)
+        return result
+
+    directory = max(all_subdirs_of(), key=os.path.getmtime)
+
+    #foldername = "2023-11-07-14-12-44" # must be adjusted
+    #directory = os.path.join('mia-result', foldername)
     filename = "results.csv"
     filepath = os.path.join(directory, filename)
     data = pd.read_csv(filepath, sep=';', header=0, index_col=["SUBJECT"])

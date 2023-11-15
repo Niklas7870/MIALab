@@ -126,12 +126,13 @@ class NeighborhoodFeatureExtractor(fltr.Filter):
     """Represents a feature extractor filter, which works on a neighborhood."""
 
     def __init__(self, kernel=(3, 3, 3), function_=first_order_texture_features_function):
+        """#z 189 y 233 x 197, The smaller the Kernel the faster the computation"""
         """Initializes a new instance of the NeighborhoodFeatureExtractor class."""
         super().__init__()
         self.neighborhood_radius = 3
         self.kernel = kernel
         self.function = function_
-        print("1")
+        #print("1")
 
     def execute(self, image: sitk.Image, params: fltr.FilterParams = None) -> sitk.Image:
         """Executes a neighborhood feature extractor on an image.
@@ -147,7 +148,7 @@ class NeighborhoodFeatureExtractor(fltr.Filter):
             ValueError: If image is not 3-D.
         """
 
-        print("3")
+        #print("3")
 
         if image.GetDimension() != 3:
             raise ValueError('image needs to be 3-D')
@@ -168,17 +169,24 @@ class NeighborhoodFeatureExtractor(fltr.Filter):
         img_out_arr = sitk.GetArrayFromImage(img_out)
         img_arr = sitk.GetArrayFromImage(image)
         z, y, x = img_arr.shape
+        #print("Image Shape x:", x, "y:", y, "z:", z)
 
         z_offset = self.kernel[2]
         y_offset = self.kernel[1]
         x_offset = self.kernel[0]
         pad = ((0, z_offset), (0, y_offset), (0, x_offset))
         img_arr_padded = np.pad(img_arr, pad, 'symmetric')
-
+        #print("Padded shape", img_arr_padded.shape)
+        #print("Voxel 0/0/0", img_arr_padded[0,0,0], "-> Symmetric padding")
         for xx in range(x):
+            #print("xx", xx, "x", x)
+            #print("x_offset", x_offset)
             for yy in range(y):
+                #print("yy", yy, "y", y)
+                #print("y_offset", y_offset)
                 for zz in range(z):
-
+                    #print("zz", zz, "z", z)
+                    #print("z_offset", z_offset)
                     val = self.function(img_arr_padded[zz:zz + z_offset, yy:yy + y_offset, xx:xx + x_offset])
                     img_out_arr[zz, yy, xx] = val
 
