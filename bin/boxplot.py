@@ -11,7 +11,7 @@ def main():
     # plot the Dice coefficients per label (i.e. white matter, gray matter, hippocampus, amygdala, thalamus)
     # in a boxplot
 
-    foldername = "2023-10-30-23-04-44" # must be adjusted
+    foldername = "C_I(T1w)_GI(T1w)" # must be adjusted
     directory = os.path.join('mia-result', foldername)
     filename = "results.csv"
     filepath = os.path.join(directory, filename)
@@ -21,7 +21,7 @@ def main():
     diceName = 'DICE'
     diceYlim = [0, 1]
     HDRFDSTName = 'HDRFDST'
-    HDRFDSTYlim = [0, 50] # upper limit probably must be adjusted
+    HDRFDSTYlim = [0, 20] # upper limit probably must be adjusted
     subjectName = 'Subject'
     labelName = 'Label'
 
@@ -46,10 +46,14 @@ def main():
     plt.ylim(HDRFDSTYlim)
 
     # save figures
-    Dice_allS.savefig(os.path.join(directory, 'Dice_allS.png'))
-    HDRFDST_allS.savefig(os.path.join(directory, 'HDRFDST_allS.png'))
-    Dice_allL.savefig(os.path.join(directory, 'Dice_allL.png'))
-    HDRFDST_allL.savefig(os.path.join(directory, 'HDRFDST_allL.png'))
+    Dice_allS.tight_layout()
+    Dice_allS.savefig(os.path.join(directory, 'Dice_allS.png'), dpi=600)
+    HDRFDST_allS.tight_layout()
+    HDRFDST_allS.savefig(os.path.join(directory, 'HDRFDST_allS.png'), dpi=600)
+    Dice_allL.tight_layout()
+    Dice_allL.savefig(os.path.join(directory, 'Dice_allL.png'), dpi=600)
+    HDRFDST_allL.tight_layout()
+    HDRFDST_allL.savefig(os.path.join(directory, 'HDRFDST_allL.png'), dpi=600)
 
     #plt.show()
 

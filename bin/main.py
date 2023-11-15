@@ -181,7 +181,9 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
     f.write('\n')
 
     f.write('## Notes ##' + '\n')
-    f.write('no feature extension')
+    f.write('only T2w implemented' + '\n')
+    for key, value in pre_process_params.items():
+        f.write('%s: %s\n' % (key, value))
 
     f.close()
     #stoptodo

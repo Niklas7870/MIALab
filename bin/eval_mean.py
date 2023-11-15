@@ -37,28 +37,28 @@ def main():
     # Plot Parameter
     diceName = 'DICE'
     diceYlimLS = [0, 1]
-    diceYlimS = [0.5, 0.8]
+    diceYlimS = [0.5, 0.75]
     HDRFDSTName = 'HDRFDST'
-    HDRFDSTYlimLS = [0, 30]
-    HDRFDSTYlimS = [0, 15]
+    HDRFDSTYlimLS = [0, 20]
+    HDRFDSTYlimS = [5, 10]
     folderName = 'Folder'
 
     # dice and housdorffdistance per folder (over all subject & labels)
-    Dice_meanLS = dataLS.boxplot(by='FOLDER', column=['DICE'], rot=90, grid=False).get_figure()
+    Dice_meanLS = dataLS.boxplot(by='FOLDER', column=['DICE'], rot=0, grid=False).get_figure()
     plt.xlabel(folderName)
     plt.ylabel(diceName)
     plt.ylim(diceYlimLS)
-    HDRFDST_meanLS = dataLS.boxplot(by='FOLDER', column=['HDRFDST'], rot=90, grid=False).get_figure()
+    HDRFDST_meanLS = dataLS.boxplot(by='FOLDER', column=['HDRFDST'], rot=0, grid=False).get_figure()
     plt.xlabel(folderName)
     plt.ylabel(HDRFDSTName)
     plt.ylim(HDRFDSTYlimLS)
 
     # dice and housdorffdistance per folder (over all subject (label mean value))
-    Dice_meanS = dataS.boxplot(by='FOLDER', column=['DICE'], rot=90, grid=False).get_figure()
+    Dice_meanS = dataS.boxplot(by='FOLDER', column=['DICE'], rot=0, grid=False).get_figure()
     plt.xlabel(folderName)
     plt.ylabel(diceName)
     plt.ylim(diceYlimS)
-    HDRFDST_meanS = dataS.boxplot(by='FOLDER', column=['HDRFDST'], rot=90, grid=False).get_figure()
+    HDRFDST_meanS = dataS.boxplot(by='FOLDER', column=['HDRFDST'], rot=0, grid=False).get_figure()
     plt.xlabel(folderName)
     plt.ylabel(HDRFDSTName)
     plt.ylim(HDRFDSTYlimS)
