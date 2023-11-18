@@ -95,7 +95,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
     print(' Time elapsed:', timeit.default_timer() - start_time, 's')
 
     # create a result directory with timestamp
-    t = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    t = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S.%f')[:-3]  # milliseconds added (microseconds [:-3])
     result_dir = os.path.join(result_dir, t)
     os.makedirs(result_dir, exist_ok=True)
 
