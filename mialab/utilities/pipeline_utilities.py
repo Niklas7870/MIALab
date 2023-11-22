@@ -39,6 +39,7 @@ def load_atlas_images(directory: str):
 class FeatureImageTypes(enum.Enum):
     """Represents the feature image types."""
 
+    #starttodo
     ATLAS_COORD = 1
     T1w_INTENSITY = 2
     T1w_GRADIENT_INTENSITY = 3
@@ -46,6 +47,7 @@ class FeatureImageTypes(enum.Enum):
     T2w_GRADIENT_INTENSITY = 5
     T1w_NEIGHBORHOOD = 6
     T2w_NEIGHBORHOOD = 7
+    #stoptodo
 
 
 class FeatureExtractor:
@@ -71,9 +73,8 @@ class FeatureExtractor:
             structure.BrainImage: The image with extracted features.
         """
         #starttodo
-        # todo: add T2w features
-        # t2w --> added: intensity, gradient intensity
-        warnings.warn('No features from T2-weighted image extracted.')
+        # add T2w features
+        # warnings.warn('No features from T2-weighted image extracted.')
 
         if self.coordinates_feature:
             atlas_coordinates = fltr_feat.AtlasCoordinates()
@@ -93,13 +94,10 @@ class FeatureExtractor:
 
         if self.neighborhood_feature:
             neighborhood_feature = fltr_feat.NeighborhoodFeatureExtractor()
-            #print("2")
             self.img.feature_images[FeatureImageTypes.T1w_NEIGHBORHOOD] = \
                 neighborhood_feature.execute(self.img.images[structure.BrainImageTypes.T1w])
             #self.img.feature_images[FeatureImageTypes.T2w_NEIGHBORHOOD] = \
             #    neighborhood_feature.execute(self.img.images[structure.BrainImageTypes.T2w])
-            print("Works")
-
         #endtodo
 
         self._generate_feature_matrix()

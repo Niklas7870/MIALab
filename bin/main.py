@@ -60,12 +60,15 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
                                           LOADING_KEYS,
                                           futil.BrainImageFilePathGenerator(),
                                           futil.DataDirectoryFilter())
+
+    #starttodo
     pre_process_params = {'skullstrip_pre': True,
                           'normalization_pre': True,
                           'registration_pre': True,
                           'coordinates_feature': True,
                           'intensity_feature': True,
                           'gradient_intensity_feature': True}
+    #stoptodo
 
     # load images for training and pre-process
     images = putil.pre_process_batch(crawler.data, pre_process_params, multi_process=False)
@@ -94,10 +97,12 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
     forest.fit(data_train, labels_train)
     print(' Time elapsed:', timeit.default_timer() - start_time, 's')
 
+    #starttodo
     # create a result directory with timestamp
     t = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S.%f')[:-3]  # milliseconds added (microseconds [:-3])
     result_dir = os.path.join(result_dir, t)
     os.makedirs(result_dir, exist_ok=True)
+    #stoptodo
 
     print('-' * 5, 'Testing...')
 
@@ -181,7 +186,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
     f.write('\n')
 
     f.write('## Notes ##' + '\n')
-    f.write('only T2w implemented' + '\n')
+    f.write('only T1w implemented' + '\n')
     for key, value in pre_process_params.items():
         f.write('%s: %s\n' % (key, value))
 
