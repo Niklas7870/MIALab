@@ -80,7 +80,7 @@ def first_order_texture_features_function(values):
             - sigma
             - skewness
             - kurtosis
-            - entropy
+            # - entropy
             - energy
             - snr
             - min
@@ -102,13 +102,15 @@ def first_order_texture_features_function(values):
     max_ = np.max(values)
     num_values = len(values)
     p = values / (np.sum(values) + eps)
+    #starttodo
+    # entropy removed
     return np.array([mean,
                      np.var(values),  # variance
                      std,
                      np.sqrt(num_values * (num_values - 1)) / (num_values - 2) * np.sum((values - mean) ** 3) /
                      (num_values*std**3 + eps),  # adjusted Fisher-Pearson coefficient of skewness
                      np.sum((values - mean) ** 4) / (num_values * std ** 4 + eps),  # kurtosis
-                     np.sum(-p * np.log2(p)),  # entropy
+                     # np.sum(-p * np.log2(p)),  # entropy
                      np.sum(p**2),  # energy (intensity histogram uniformity)
                      snr,
                      min_,
@@ -120,7 +122,7 @@ def first_order_texture_features_function(values):
                      np.percentile(values, 75),
                      np.percentile(values, 90)
                      ])
-
+    #stoptodo
 
 class NeighborhoodFeatureExtractor(fltr.Filter):
     """Represents a feature extractor filter, which works on a neighborhood."""
@@ -132,7 +134,6 @@ class NeighborhoodFeatureExtractor(fltr.Filter):
         self.neighborhood_radius = 3
         self.kernel = kernel
         self.function = function_
-        #print("1")
 
     def execute(self, image: sitk.Image, params: fltr.FilterParams = None) -> sitk.Image:
         """Executes a neighborhood feature extractor on an image.
@@ -147,8 +148,6 @@ class NeighborhoodFeatureExtractor(fltr.Filter):
         Raises:
             ValueError: If image is not 3-D.
         """
-
-        #print("3")
 
         if image.GetDimension() != 3:
             raise ValueError('image needs to be 3-D')
@@ -169,24 +168,16 @@ class NeighborhoodFeatureExtractor(fltr.Filter):
         img_out_arr = sitk.GetArrayFromImage(img_out)
         img_arr = sitk.GetArrayFromImage(image)
         z, y, x = img_arr.shape
-        #print("Image Shape x:", x, "y:", y, "z:", z)
 
         z_offset = self.kernel[2]
         y_offset = self.kernel[1]
         x_offset = self.kernel[0]
         pad = ((0, z_offset), (0, y_offset), (0, x_offset))
         img_arr_padded = np.pad(img_arr, pad, 'symmetric')
-        #print("Padded shape", img_arr_padded.shape)
-        #print("Voxel 0/0/0", img_arr_padded[0,0,0], "-> Symmetric padding")
+
         for xx in range(x):
-            #print("xx", xx, "x", x)
-            #print("x_offset", x_offset)
             for yy in range(y):
-                #print("yy", yy, "y", y)
-                #print("y_offset", y_offset)
                 for zz in range(z):
-                    #print("zz", zz, "z", z)
-                    #print("z_offset", z_offset)
                     val = self.function(img_arr_padded[zz:zz + z_offset, yy:yy + y_offset, xx:xx + x_offset])
                     img_out_arr[zz, yy, xx] = val
 
