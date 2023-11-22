@@ -48,6 +48,8 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
         - Evaluation of the segmentation
     """
 
+    np.random.seed(42)
+
     # load atlas images
     putil.load_atlas_images(data_atlas_dir)
 
@@ -63,11 +65,10 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
                           'registration_pre': True,
                           'coordinates_feature': True,
                           'intensity_feature': True,
-                          'gradient_intensity_feature': True,
-                          'neighborhood_feature': True}
+                          'gradient_intensity_feature': True}
 
     # load images for training and pre-process
-    images = putil.pre_process_batch(crawler.data, pre_process_params, multi_process=True)
+    images = putil.pre_process_batch(crawler.data, pre_process_params, multi_process=False)
 
     # generate feature matrix and label vector
     data_train = np.concatenate([img.feature_matrix[0] for img in images])
@@ -86,7 +87,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
     n_estimators = 10
     max_depth = 30
     forest = sk_ensemble.RandomForestClassifier(max_features=images[0].feature_matrix[0].shape[1],
-                                                n_estimators=n_estimators, max_depth=max_depth, random_state=0)
+                                                n_estimators=n_estimators, max_depth=max_depth)
     #endtodo
 
     start_time = timeit.default_timer()
@@ -94,7 +95,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
     print(' Time elapsed:', timeit.default_timer() - start_time, 's')
 
     # create a result directory with timestamp
-    t = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+    t = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S.%f')[:-3]  # milliseconds added (microseconds [:-3])
     result_dir = os.path.join(result_dir, t)
     os.makedirs(result_dir, exist_ok=True)
 
@@ -111,7 +112,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
 
     # load images for testing and pre-process
     pre_process_params['training'] = False
-    images_test = putil.pre_process_batch(crawler.data, pre_process_params, multi_process=True)
+    images_test = putil.pre_process_batch(crawler.data, pre_process_params, multi_process=False)
 
     images_prediction = []
     images_probabilities = []
@@ -180,10 +181,9 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
     f.write('\n')
 
     f.write('## Notes ##' + '\n')
-    f.write('no feature extension' + '\n')
-
-    for p, v in pre_process_params.items():
-        f.write(p + ': ' + str(v) + '\n')
+    f.write('only T2w implemented' + '\n')
+    for key, value in pre_process_params.items():
+        f.write('%s: %s\n' % (key, value))
 
     f.close()
     #stoptodo
