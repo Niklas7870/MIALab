@@ -67,7 +67,8 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
                           'registration_pre': True,
                           'coordinates_feature': True,
                           'intensity_feature': True,
-                          'gradient_intensity_feature': True}
+                          'gradient_intensity_feature': True,
+                          'neighborhood_feature': True}
     #stoptodo
 
     # load images for training and pre-process
