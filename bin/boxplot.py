@@ -11,7 +11,8 @@ def main():
     # plot the Dice coefficients per label (i.e. white matter, gray matter, hippocampus, amygdala, thalamus)
     # in a boxplot
 
-    def all_subdirs_of(b='./mia-result'):
+    work_directory = os.path.dirname(os.path.realpath(__file__)) + '/mia-result'
+    def all_subdirs_of(b=work_directory):
         result = []
         for d in os.listdir(b):
             bd = os.path.join(b, d)

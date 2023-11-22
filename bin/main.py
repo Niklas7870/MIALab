@@ -62,12 +62,12 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
                           'normalization_pre': True,
                           'registration_pre': True,
                           'coordinates_feature': True,
-                          'intensity_feature': False,
-                          'gradient_intensity_feature': False,
+                          'intensity_feature': True,
+                          'gradient_intensity_feature': True,
                           'neighborhood_feature': True}
 
     # load images for training and pre-process
-    images = putil.pre_process_batch(crawler.data, pre_process_params, multi_process=False)
+    images = putil.pre_process_batch(crawler.data, pre_process_params, multi_process=True)
 
     # generate feature matrix and label vector
     data_train = np.concatenate([img.feature_matrix[0] for img in images])
@@ -111,7 +111,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
 
     # load images for testing and pre-process
     pre_process_params['training'] = False
-    images_test = putil.pre_process_batch(crawler.data, pre_process_params, multi_process=False)
+    images_test = putil.pre_process_batch(crawler.data, pre_process_params, multi_process=True)
 
     images_prediction = []
     images_probabilities = []

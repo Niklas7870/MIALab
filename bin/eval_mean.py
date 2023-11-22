@@ -7,7 +7,8 @@ def main():
     # as well as comparison of results for different feature extractions
     # --> calculates the mean of the evaluation metric over all subjects and labels
 
-    foldername = 'mia-result'
+    foldername = os.path.dirname(os.path.realpath(__file__)) + '/mia-result'
+    #foldername = 'mia-result'
     filename = 'results.csv'
     data = pd.DataFrame()
 
