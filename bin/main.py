@@ -67,11 +67,15 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
                           'registration_pre': True,
                           'coordinates_feature': True,
                           'intensity_feature': True,
-                          'gradient_intensity_feature': True,
-                          'neighborhood_feature': True}
-    
+                          'gradient_intensity_feature': False,
+                          'neighborhood_feature': False,
+                          'T1W_Image': True,
+                          'T2W_Image': False}
+
+    multiprocess = True
+
     # load images for training and pre-process
-    images = putil.pre_process_batch(crawler.data, pre_process_params, multi_process=True)
+    images = putil.pre_process_batch(crawler.data, pre_process_params, multi_process=multiprocess)
 
     # generate feature matrix and label vector
     data_train = np.concatenate([img.feature_matrix[0] for img in images])
@@ -99,7 +103,24 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
 
     #starttodo
     # create a result directory with timestamp
+
+    name = ''
+    for key, value in pre_process_params.items():
+        if key == 'T1W_Image':
+            if value: name = key[0:3] + '_' + name
+        if key == 'T2W_Image':
+            if value: name = key[0:3] + '_' + name
+        if key == 'coordinates_feature':
+            if value: name = name + 'C_'
+        if key == 'intensity_feature':
+            if value: name = name + 'I_'
+        if key == 'gradient_intensity_feature':
+            if value: name = name + 'G_'
+        if key == 'neighborhood_feature':
+            if value: name = name + 'NH_'
+
     t = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S.%f')[:-3]  # milliseconds added (microseconds [:-3])
+    t = name + t
     result_dir = os.path.join(result_dir, t)
     os.makedirs(result_dir, exist_ok=True)
     #stoptodo
@@ -117,7 +138,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
 
     # load images for testing and pre-process
     pre_process_params['training'] = False
-    images_test = putil.pre_process_batch(crawler.data, pre_process_params, multi_process=True)
+    images_test = putil.pre_process_batch(crawler.data, pre_process_params, multi_process=multiprocess)
 
     images_prediction = []
     images_probabilities = []
@@ -147,14 +168,14 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
     # post-process segmentation and evaluate with post-processing
     # post_process_params = {'simple_post': True}
     # images_post_processed = putil.post_process_batch(images_test, images_prediction, images_probabilities,
-    #                                                  post_process_params, multi_process=True)
+    #                                                  post_process_params, multi_process=multiprocess)
     #
     for i, img in enumerate(images_test):
     #     evaluator.evaluate(images_post_processed[i], img.images[structure.BrainImageTypes.GroundTruth],
     #                        img.id_ + '-PP')
 
         # save results
-        sitk.WriteImage(images_prediction[i], os.path.join(result_dir, images_test[i].id_ + '_SEG.mha'), True)
+        sitk.WriteImage(images_prediction[i], os.path.join(result_dir, images_test[i].id_ + '_SEG.mha'), False)
         # sitk.WriteImage(images_post_processed[i], os.path.join(result_dir, images_test[i].id_ + '_SEG-PP.mha'), True)
     #endtodo
 

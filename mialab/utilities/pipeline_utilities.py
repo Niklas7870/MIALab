@@ -65,6 +65,9 @@ class FeatureExtractor:
         self.intensity_feature = kwargs.get('intensity_feature', False)
         self.gradient_intensity_feature = kwargs.get('gradient_intensity_feature', False)
         self.neighborhood_feature = kwargs.get('neighborhood_feature', False)
+        self.t1 = kwargs.get('T1W_Image', True)
+        self.t2 = kwargs.get('T2W_Image', False)
+
 
     def execute(self) -> structure.BrainImage:
         """Extracts features from an image.
@@ -82,22 +85,28 @@ class FeatureExtractor:
                 atlas_coordinates.execute(self.img.images[structure.BrainImageTypes.T1w])
 
         if self.intensity_feature:
-            self.img.feature_images[FeatureImageTypes.T1w_INTENSITY] = self.img.images[structure.BrainImageTypes.T1w]
-            # self.img.feature_images[FeatureImageTypes.T2w_INTENSITY] = self.img.images[structure.BrainImageTypes.T2w]
+            if self.t1:
+                self.img.feature_images[FeatureImageTypes.T1w_INTENSITY] = self.img.images[structure.BrainImageTypes.T1w]
+            if self.t2:
+                self.img.feature_images[FeatureImageTypes.T2w_INTENSITY] = self.img.images[structure.BrainImageTypes.T2w]
 
         if self.gradient_intensity_feature:
             # compute gradient magnitude images
-            self.img.feature_images[FeatureImageTypes.T1w_GRADIENT_INTENSITY] = \
-                sitk.GradientMagnitude(self.img.images[structure.BrainImageTypes.T1w])
-            # self.img.feature_images[FeatureImageTypes.T2w_GRADIENT_INTENSITY] = \
-            #     sitk.GradientMagnitude(self.img.images[structure.BrainImageTypes.T2w])
+            if self.t1:
+                self.img.feature_images[FeatureImageTypes.T1w_GRADIENT_INTENSITY] = \
+                    sitk.GradientMagnitude(self.img.images[structure.BrainImageTypes.T1w])
+            if self.t2:
+                self.img.feature_images[FeatureImageTypes.T2w_GRADIENT_INTENSITY] = \
+                    sitk.GradientMagnitude(self.img.images[structure.BrainImageTypes.T2w])
 
         if self.neighborhood_feature:
             neighborhood_feature = fltr_feat.NeighborhoodFeatureExtractor()
-            self.img.feature_images[FeatureImageTypes.T1w_NEIGHBORHOOD] = \
-                neighborhood_feature.execute(self.img.images[structure.BrainImageTypes.T1w])
-            #self.img.feature_images[FeatureImageTypes.T2w_NEIGHBORHOOD] = \
-            #    neighborhood_feature.execute(self.img.images[structure.BrainImageTypes.T2w])
+            if self.t1:
+                self.img.feature_images[FeatureImageTypes.T1w_NEIGHBORHOOD] = \
+                    neighborhood_feature.execute(self.img.images[structure.BrainImageTypes.T1w])
+            if self.t2:
+                self.img.feature_images[FeatureImageTypes.T2w_NEIGHBORHOOD] = \
+                    neighborhood_feature.execute(self.img.images[structure.BrainImageTypes.T2w])
         #endtodo
 
         self._generate_feature_matrix()
