@@ -67,12 +67,12 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
                           'registration_pre': True,
                           'coordinates_feature': True,
                           'intensity_feature': True,
-                          'gradient_intensity_feature': False,
+                          'gradient_intensity_feature': True,
                           'neighborhood_feature': False,
                           'T1W_Image': True,
                           'T2W_Image': False}
 
-    multiprocess = True
+    multiprocess = False
 
     # load images for training and pre-process
     images = putil.pre_process_batch(crawler.data, pre_process_params, multi_process=multiprocess)
@@ -120,7 +120,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
             if value: name = name + 'NH_'
 
     t = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S.%f')[:-3]  # milliseconds added (microseconds [:-3])
-    t = name + t
+    t = t + name
     result_dir = os.path.join(result_dir, t)
     os.makedirs(result_dir, exist_ok=True)
     #stoptodo
@@ -175,7 +175,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
     #                        img.id_ + '-PP')
 
         # save results
-        sitk.WriteImage(images_prediction[i], os.path.join(result_dir, images_test[i].id_ + '_SEG.mha'), False)
+        sitk.WriteImage(images_prediction[i], os.path.join(result_dir, images_test[i].id_ + '_SEG.nii.gz'), False)
         # sitk.WriteImage(images_post_processed[i], os.path.join(result_dir, images_test[i].id_ + '_SEG-PP.mha'), True)
     #endtodo
 
