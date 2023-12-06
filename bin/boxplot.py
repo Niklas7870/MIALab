@@ -25,7 +25,7 @@ def main():
             continue
 
         directory = subdirs
-        #foldername = "2023-11-07-14-12-44" # must be adjusted
+        #foldername = "2023-12-06-09-58-32.078T1W_C_I_G_" # must be adjusted
         #directory = os.path.join('mia-result', foldername)
         filename = "results.csv"
         filepath = os.path.join(directory, filename)
@@ -36,38 +36,52 @@ def main():
         diceYlim = [0, 1]
         HDRFDSTName = 'HDRFDST'
         HDRFDSTYlim = [0, 20] # upper limit probably must be adjusted
+        accuracyName = 'ACURCY'
+        accuracyYlim = [0, 1]
         subjectName = 'Subject'
         labelName = 'Label'
 
-        # dice and housdorffdistance per subject (over all labels)
-        Dice_allS = data.boxplot(by='SUBJECT', column=['DICE'], rot=45, grid=False).get_figure()
+        # DICE, HDRFDST, ACCURACY per subject (over all labels)
+        Dice_allS = data.boxplot(by='SUBJECT', column=[diceName], rot=45, grid=False).get_figure()
         plt.xlabel(subjectName)
         plt.ylabel(diceName)
         plt.ylim(diceYlim)
-        HDRFDST_allS = data.boxplot(by='SUBJECT', column=['HDRFDST'], rot=45, grid=False).get_figure()
+        HDRFDST_allS = data.boxplot(by='SUBJECT', column=[HDRFDSTName], rot=45, grid=False).get_figure()
         plt.xlabel(subjectName)
         plt.ylabel(HDRFDSTName)
         plt.ylim(HDRFDSTYlim)
+        Accuracy_allS = data.boxplot(by='SUBJECT', column=[accuracyName], rot=45, grid=False).get_figure()
+        plt.xlabel(subjectName)
+        plt.ylabel(accuracyName)
+        plt.ylim(accuracyYlim)
 
-        # dice and housdorffdistance per label (over all subjects)
-        Dice_allL = data.boxplot(by='LABEL', column=['DICE'], grid=False).get_figure()
+        # DICE, HDRFDST, ACCURACY per label (over all subjects)
+        Dice_allL = data.boxplot(by='LABEL', column=[diceName], grid=False).get_figure()
         plt.xlabel(labelName)
         plt.ylabel(diceName)
         plt.ylim(diceYlim)
-        HDRFDST_allL = data.boxplot(by='LABEL', column=['HDRFDST'], grid=False).get_figure()
+        HDRFDST_allL = data.boxplot(by='LABEL', column=[HDRFDSTName], grid=False).get_figure()
         plt.xlabel(labelName)
         plt.ylabel(HDRFDSTName)
         plt.ylim(HDRFDSTYlim)
+        Accuracy_allL = data.boxplot(by='LABEL', column=[accuracyName], grid=False).get_figure()
+        plt.xlabel(labelName)
+        plt.ylabel(accuracyName)
+        plt.ylim(accuracyYlim)
 
         # save figures
         Dice_allS.tight_layout()
         Dice_allS.savefig(os.path.join(directory, 'Dice_allS.png'), dpi=600)
         HDRFDST_allS.tight_layout()
         HDRFDST_allS.savefig(os.path.join(directory, 'HDRFDST_allS.png'), dpi=600)
+        Accuracy_allS.tight_layout()
+        Accuracy_allS.savefig(os.path.join(directory, 'Accuracy_allS.png'), dpi=600)
         Dice_allL.tight_layout()
         Dice_allL.savefig(os.path.join(directory, 'Dice_allL.png'), dpi=600)
         HDRFDST_allL.tight_layout()
         HDRFDST_allL.savefig(os.path.join(directory, 'HDRFDST_allL.png'), dpi=600)
+        Accuracy_allL.tight_layout()
+        Accuracy_allL.savefig(os.path.join(directory, 'Accuracy_allL.png'), dpi=600)
 
     #plt.show()
 

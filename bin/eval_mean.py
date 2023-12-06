@@ -28,7 +28,8 @@ def main():
                 dfsubject = dfLS[dfLS['SUBJECT'] == subject]
                 meanDICE = dfsubject['DICE'].mean()
                 meanHDRFDST = dfsubject['HDRFDST'].mean()
-                dfS = pd.DataFrame([[subject, meanDICE, meanHDRFDST, dir]], columns=['SUBJECT', 'DICE', 'HDRFDST', 'FOLDER'])
+                meanACCURACY = dfsubject['ACURCY'].mean()
+                dfS = pd.DataFrame([[subject, meanDICE, meanHDRFDST, meanACCURACY, dir]], columns=['SUBJECT', 'DICE', 'HDRFDST', 'ACURCY', 'FOLDER'])
                 dataS = pd.concat([dataS, dfS])
 
 
@@ -42,9 +43,12 @@ def main():
     HDRFDSTName = 'HDRFDST'
     HDRFDSTYlimLS = [0, 20]
     HDRFDSTYlimS = [5, 10]
+    ACCURACYName = 'ACURCY'
+    ACCURACYYlimLS = [0, 1]
+    ACCURACYYlimS = [0, 1]
     folderName = 'Folder'
 
-    # dice and housdorffdistance per folder (over all subject & labels)
+    # dice and hausdorffdistance per folder (over all subject & labels)
     Dice_meanLS = dataLS.boxplot(by='FOLDER', column=['DICE'], rot=0, grid=False).get_figure()
     plt.xlabel(folderName)
     plt.ylabel(diceName)
@@ -53,8 +57,12 @@ def main():
     plt.xlabel(folderName)
     plt.ylabel(HDRFDSTName)
     plt.ylim(HDRFDSTYlimLS)
+    ACCURACY_meanLS = dataLS.boxplot(by='FOLDER', column=['ACURCY'], rot=0, grid=False).get_figure()
+    plt.xlabel(folderName)
+    plt.ylabel(ACCURACYName)
+    plt.ylim(ACCURACYYlimLS)
 
-    # dice and housdorffdistance per folder (over all subject (label mean value))
+    # dice and hausdorffdistance per folder (over all subject (label mean value))
     Dice_meanS = dataS.boxplot(by='FOLDER', column=['DICE'], rot=0, grid=False).get_figure()
     plt.xlabel(folderName)
     plt.ylabel(diceName)
@@ -63,6 +71,10 @@ def main():
     plt.xlabel(folderName)
     plt.ylabel(HDRFDSTName)
     plt.ylim(HDRFDSTYlimS)
+    ACCURACY_meanS = dataS.boxplot(by='FOLDER', column=['ACURCY'], rot=0, grid=False).get_figure()
+    plt.xlabel(folderName)
+    plt.ylabel(ACCURACYName)
+    plt.ylim(ACCURACYYlimS)
 
     # save figures
     # Dice_meanLS.set_size_inches(16, 9)
@@ -71,12 +83,18 @@ def main():
     # HDRFDST_meanLS.set_size_inches(16, 9)
     HDRFDST_meanLS.tight_layout()
     HDRFDST_meanLS.savefig(os.path.join(foldername, 'HDRFDST_meanLS.png'), dpi=600)
+    # ACCURACY_meanLS.set_size_inches(16, 9)
+    ACCURACY_meanLS.tight_layout()
+    ACCURACY_meanLS.savefig(os.path.join(foldername, 'Accuracy_meanLS.png'), dpi=600)
     # Dice_meanS.set_size_inches(16, 9)
     Dice_meanS.tight_layout()
     Dice_meanS.savefig(os.path.join(foldername, 'Dice_meanS.png'), dpi=600)
     # HDRFDST_meanS.set_size_inches(16, 9)
     HDRFDST_meanS.tight_layout()
     HDRFDST_meanS.savefig(os.path.join(foldername, 'HDRFDST_meanS.png'), dpi=600)
+    # ACCURACY_meanS.set_size_inches(16, 9)
+    ACCURACY_meanS.tight_layout()
+    ACCURACY_meanS.savefig(os.path.join(foldername, 'Accuracy_meanS.png'), dpi=600)
 
     #plt.show()
 
