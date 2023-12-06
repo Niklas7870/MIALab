@@ -32,6 +32,39 @@ LOADING_KEYS = [structure.BrainImageTypes.T1w,
                 structure.BrainImageTypes.BrainMask,
                 structure.BrainImageTypes.RegistrationTransform]  # the list of data we will load
 
+label_mapping = {
+            0: 'Background',
+            1: 'WhiteMatter',
+            2: 'GreyMatter',
+            3: 'Hippocampus',
+            4: 'Amygdala',
+            5: 'Thalamus'
+        }
+
+
+def getDiceScores(results):
+    uniqueLabes = set(results.label for results in results if results.metric == 'DICE')
+    diceScore = {}
+    for label in uniqueLabes:
+        diceScore[label] = [result.value for result in results if result.metric == 'DICE' and result.label == label]
+    return diceScore
+
+def calculateWeightedDiceScore(buffer, diceScore):
+
+    totalSegVolume = (np.sum(buffer == 1) + np.sum(buffer == 2) + np.sum(buffer == 3) + np.sum(buffer == 4) +
+                      np.sum(buffer == 5))
+
+    diceSumWithArea = 0
+
+    for index in range(0, 5):
+        diceSumWithArea += diceScore[index] / np.sum(buffer==index)
+        print("index: ", index)
+
+    weightedDice = diceSumWithArea / totalSegVolume
+
+    return weightedDice
+
+
 
 def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_dir: str):
     """Brain tissue segmentation using decision forests.
@@ -65,7 +98,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
                           'registration_pre': True,
                           'coordinates_feature': True,
                           'intensity_feature': True,
-                          'gradient_intensity_feature': True}
+                          'gradient_intensity_feature': False}
 
     # load images for training and pre-process
     images = putil.pre_process_batch(crawler.data, pre_process_params, multi_process=False)
@@ -135,6 +168,22 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
 
         images_prediction.append(image_prediction)
         images_probabilities.append(image_probabilities)
+
+    diceScores = getDiceScores(evaluator.results)
+
+    weightedDiceScore = np.zeros(10)
+    counter = 0
+
+    for img in images_test:
+        buffer = sitk.GetArrayFromImage(img.images[structure.BrainImageTypes.GroundTruth])
+
+        diceList = []
+        for index in range(1, 6):
+            diceList.append(diceScores[label_mapping[index]][counter])
+
+        weightedDiceScore[counter] = calculateWeightedDiceScore(buffer, diceList)
+
+        counter += 1
 
     #stardtodo
     # --> postprocessing removed
