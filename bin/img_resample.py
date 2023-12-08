@@ -40,11 +40,16 @@ def main():
             imageT2_resampled.CopyInformation(atlasT1)
             imageLabels_resampled.CopyInformation(atlasT1)
 
-            # save resampled images
-            sitk.WriteImage(imageT1_resampled, os.path.join(test_dir, dir, 'T1native_resampled.nii.gz'), False)
-            sitk.WriteImage(imageT2_resampled, os.path.join(test_dir, dir, 'T2native_resampled.nii.gz'), False)
-            sitk.WriteImage(imageLabels_resampled, os.path.join(test_dir, dir, 'labels_native_resampled.nii.gz'), False)
+            # create resample folder
+            save_dir = os.path.join(test_dir, dir, 'resampled')
+            if not os.path.exists(save_dir):
+                os.makedirs(save_dir)
 
+            # save resampled images
+            sitk.WriteImage(imageT1_resampled, os.path.join(save_dir, 'T1native.nii.gz'), False)
+            sitk.WriteImage(imageT2_resampled, os.path.join(save_dir, 'T2native.nii.gz'), False)
+            sitk.WriteImage(imageLabels_resampled, os.path.join(save_dir, 'labels_native.nii.gz'), False)
+        break # only go through first level of os.walk
 
 
 if __name__ == '__main__':
