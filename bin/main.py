@@ -51,19 +51,21 @@ def getDiceScores(results):
 
 def calculateWeightedDiceScore(buffer, diceScore):
 
-    totalSegVolume = (np.sum(buffer == 1) + np.sum(buffer == 2) + np.sum(buffer == 3) + np.sum(buffer == 4) +
-                      np.sum(buffer == 5))
+    totalSegVolume = 0
+
+    for index in range(1, 6):
+        if np.sum(buffer==index) != 0:
+            totalSegVolume += 1/float(np.sum(buffer==index))
 
     diceSumWithArea = 0
 
     for index in range(0, 5):
-        diceSumWithArea += diceScore[index] / np.sum(buffer==index)
-        print("index: ", index)
+        if np.sum(buffer==index+1) != 0:
+            diceSumWithArea += diceScore[index] / float(np.sum(buffer==index+1))
 
     weightedDice = diceSumWithArea / totalSegVolume
 
     return weightedDice
-
 
 
 def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_dir: str):
@@ -97,7 +99,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
                           'normalization_pre': True,
                           'registration_pre': True,
                           'coordinates_feature': True,
-                          'intensity_feature': True,
+                          'intensity_feature': False,
                           'gradient_intensity_feature': False}
 
     # load images for training and pre-process
@@ -169,19 +171,21 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
         images_prediction.append(image_prediction)
         images_probabilities.append(image_probabilities)
 
+
     diceScores = getDiceScores(evaluator.results)
 
-    weightedDiceScore = np.zeros(10)
+    weightedDiceScore = np.zeros((images_test.__len__(), 2))
     counter = 0
 
     for img in images_test:
-        buffer = sitk.GetArrayFromImage(img.images[structure.BrainImageTypes.GroundTruth])
 
+        buffer = sitk.GetArrayFromImage(img.images[structure.BrainImageTypes.GroundTruth])
         diceList = []
         for index in range(1, 6):
             diceList.append(diceScores[label_mapping[index]][counter])
 
-        weightedDiceScore[counter] = calculateWeightedDiceScore(buffer, diceList)
+        weightedDiceScore[counter][0] = int(img.id_)
+        weightedDiceScore[counter][1] = calculateWeightedDiceScore(buffer, diceList)
 
         counter += 1
 
@@ -202,10 +206,20 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
         # sitk.WriteImage(images_post_processed[i], os.path.join(result_dir, images_test[i].id_ + '_SEG-PP.mha'), True)
     #endtodo
 
+
+
     # use two writers to report the results
     os.makedirs(result_dir, exist_ok=True)  # generate result directory, if it does not exists
     result_file = os.path.join(result_dir, 'results.csv')
     writer.CSVWriter(result_file).write(evaluator.results)
+
+    import csv
+
+    result_file = os.path.join(result_dir, 'weightedDiceScore.csv')
+    file = open(result_file, 'w', encoding='UTF8', newline='')
+    writerCsv = csv.writer(file)
+    writerCsv.writerow(['SUBJECT', 'DICE'])
+    writerCsv.writerows(weightedDiceScore)
 
     print('\nSubject-wise results...')
     writer.ConsoleWriter().write(evaluator.results)
