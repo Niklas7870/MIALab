@@ -118,27 +118,27 @@ def main():
             except Exception as e:
                 print(f"An error occurred: {e}")
 
-    filename = "weightedDiceScore.csv"
-    filepath = os.path.join(directory, filename)
-    data = pd.read_csv(filepath, sep=',', header=0, index_col=["SUBJECT"])
+            filename = "weightedDiceScore"+test_loop_parameter+".csv"
+            filepath = os.path.join(directory, filename)
+            data = pd.read_csv(filepath, sep=',', header=0, index_col=["SUBJECT"])
 
-    diceName = 'weightedDice'
+            diceName = 'weightedDice'
 
-    # dice and housdorffdistance per subject (over all labels)
-    weightedDice = data.boxplot(by='SUBJECT', column=['DICE'], rot=45, grid=True).get_figure()
-    plt.xlabel(subjectName)
-    plt.ylabel(diceName)
-    plt.ylim(diceYlim)
-    weightedDice.tight_layout()
-    weightedDice.savefig(os.path.join(directory, 'WEIGHTEDDICE_allS.png'), dpi=600)
+            # dice and housdorffdistance per subject (over all labels)
+            weightedDice = data.boxplot(by='SUBJECT', column=['DICE'], rot=45, grid=True).get_figure()
+            plt.xlabel(subjectName)
+            plt.ylabel(diceName)
+            plt.ylim(diceYlim)
+            weightedDice.tight_layout()
+            weightedDice.savefig(os.path.join(directory, 'WEIGHTEDDICE_allS'+test_loop_parameter+'.png'), dpi=600)
 
-    #plt.show()
+            #plt.show()
 
-    # alternative: instead of manually loading/reading the csv file you could also use the pandas package
-    # but you will need to install it first ('pip install pandas') and import it to this file ('import pandas as pd')
-    # pass  # pass is just a placeholder if there is no other code
+            # alternative: instead of manually loading/reading the csv file you could also use the pandas package
+            # but you will need to install it first ('pip install pandas') and import it to this file ('import pandas as pd')
+            # pass  # pass is just a placeholder if there is no other code
 
-    #endtodo
+            #endtodo
 
 if __name__ == '__main__':
     main()

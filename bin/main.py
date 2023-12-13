@@ -270,7 +270,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
 
         import csv
 
-        result_file = os.path.join(result_dir, 'weightedDiceScore.csv')
+        result_file = os.path.join(result_dir, 'weightedDiceScore'+test_loop_parameter+'.csv')
         file = open(result_file, 'w', encoding='UTF8', newline='')
         writerCsv = csv.writer(file)
         writerCsv.writerow(['SUBJECT', 'DICE'])
