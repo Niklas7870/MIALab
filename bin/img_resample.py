@@ -24,6 +24,20 @@ def main():
             imageT2 = sitk.ReadImage(imageT2_path)
             imageLabels = sitk.ReadImage(imageLabels_path)
 
+            imageT1_noise = sitk.AdditiveGaussianNoise(imageT1, standardDeviation=2000.0, mean=0.0)
+            imageT2_noise = sitk.AdditiveGaussianNoise(imageT1, standardDeviation=2000.0, mean=0.0)
+            test_dir_noise = os.path.join(test_dir + '_gaussian_2000')
+            #imageT1_noise = sitk.SaltAndPepperNoise(imageT1, probability=0.01, seed=42)
+            #imageT2_noise = sitk.SaltAndPepperNoise(imageT2, probability=0.01, seed=42)
+            #test_dir_noise = os.path.join(test_dir + '_salt_pepper_001')
+
+            save_dir = os.path.join(test_dir_noise, dir)
+            if not os.path.exists(save_dir):
+                os.makedirs(save_dir)
+            sitk.WriteImage(imageT1_noise, os.path.join(test_dir_noise, dir, 'T1native.nii.gz'), False)
+            sitk.WriteImage(imageT2_noise, os.path.join(test_dir_noise, dir, 'T2native.nii.gz'), False)
+            continue
+
             # resample data
             imageT1_resampled = sitk.Resample(image1=imageT1, referenceImage=atlasT1, transform=transform,
                                               interpolator=sitk.sitkLinear, defaultPixelValue=0.0,
