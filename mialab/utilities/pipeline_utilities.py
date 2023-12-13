@@ -117,14 +117,14 @@ class FeatureExtractor:
         if self.gaussian:
             if self.t1:
                 self.img.feature_images[FeatureImageTypes.T1w_GAUSSIAN] = \
-                    sitk.AdditiveGaussianNoise(self.img.images[structure.BrainImageTypes.T1w], standardDeviation=100.0, mean=50.0)
+                    sitk.AdditiveGaussianNoise(self.img.images[structure.BrainImageTypes.T1w], standardDeviation=500.0, mean=0.0)
                     #imageT1_gaussian = sitk.AdditiveGaussianNoise(imageT1, standardDeviation=100.0, mean=1.0)
                     #sitk.WriteImage(imageT1_gaussian, os.path.join(test_dir, dir, 'T1native_gaussian.nii.gz'), False)
                     #imageT1_saltpepper = sitk.SaltAndPepperNoise(imageT1, probability=0.01, seed=42)
                     #sitk.WriteImage(imageT1_saltpepper, os.path.join(test_dir, dir, 'T1native_saltpepper.nii.gz'), False)
             if self.t2:
                 self.img.feature_images[FeatureImageTypes.T2w_GAUSSIAN] = \
-                    sitk.AdditiveGaussianNoise(self.img.images[structure.BrainImageTypes.T1w], standardDeviation=100.0, mean=50.0)
+                    sitk.AdditiveGaussianNoise(self.img.images[structure.BrainImageTypes.T1w], standardDeviation=500.0, mean=0.0)
 
         if self.salt_pepper:
             if self.t1:
