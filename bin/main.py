@@ -32,6 +32,41 @@ LOADING_KEYS = [structure.BrainImageTypes.T1w,
                 structure.BrainImageTypes.BrainMask,
                 structure.BrainImageTypes.RegistrationTransform]  # the list of data we will load
 
+label_mapping = {
+            0: 'Background',
+            1: 'WhiteMatter',
+            2: 'GreyMatter',
+            3: 'Hippocampus',
+            4: 'Amygdala',
+            5: 'Thalamus'
+        }
+
+
+def getDiceScores(results):
+    uniqueLabes = set(results.label for results in results if results.metric == 'DICE')
+    diceScore = {}
+    for label in uniqueLabes:
+        diceScore[label] = [result.value for result in results if result.metric == 'DICE' and result.label == label]
+    return diceScore
+
+def calculateWeightedDiceScore(buffer, diceScore):
+
+    totalSegVolume = 0
+
+    for index in range(1, 6):
+        if np.sum(buffer==index) != 0:
+            totalSegVolume += 1/float(np.sum(buffer==index))
+
+    diceSumWithArea = 0
+
+    for index in range(0, 5):
+        if np.sum(buffer==index+1) != 0:
+            diceSumWithArea += diceScore[index] / float(np.sum(buffer==index+1))
+
+    weightedDice = diceSumWithArea / totalSegVolume
+
+    return weightedDice
+
 
 def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_dir: str):
     """Brain tissue segmentation using decision forests.
@@ -66,6 +101,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
                           'normalization_pre': True,
                           'registration_pre': True,
                           'coordinates_feature': True,
+<<<<<<< HEAD
                           'intensity_feature': True,
                           'gradient_intensity_feature': True,
                           'neighborhood_feature': False,
@@ -73,6 +109,10 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
                           'T2W_Image': False}
 
     multiprocess = False
+=======
+                          'intensity_feature': False,
+                          'gradient_intensity_feature': False}
+>>>>>>> weightedDice
 
     # load images for training and pre-process
     images = putil.pre_process_batch(crawler.data, pre_process_params, multi_process=multiprocess)
@@ -162,6 +202,24 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
         images_prediction.append(image_prediction)
         images_probabilities.append(image_probabilities)
 
+
+    diceScores = getDiceScores(evaluator.results)
+
+    weightedDiceScore = np.zeros((images_test.__len__(), 2))
+    counter = 0
+
+    for img in images_test:
+
+        buffer = sitk.GetArrayFromImage(img.images[structure.BrainImageTypes.GroundTruth])
+        diceList = []
+        for index in range(1, 6):
+            diceList.append(diceScores[label_mapping[index]][counter])
+
+        weightedDiceScore[counter][0] = int(img.id_)
+        weightedDiceScore[counter][1] = calculateWeightedDiceScore(buffer, diceList)
+
+        counter += 1
+
     #stardtodo
     # --> postprocessing removed
 
@@ -179,10 +237,20 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
         # sitk.WriteImage(images_post_processed[i], os.path.join(result_dir, images_test[i].id_ + '_SEG-PP.mha'), True)
     #endtodo
 
+
+
     # use two writers to report the results
     os.makedirs(result_dir, exist_ok=True)  # generate result directory, if it does not exists
     result_file = os.path.join(result_dir, 'results.csv')
     writer.CSVWriter(result_file).write(evaluator.results)
+
+    import csv
+
+    result_file = os.path.join(result_dir, 'weightedDiceScore.csv')
+    file = open(result_file, 'w', encoding='UTF8', newline='')
+    writerCsv = csv.writer(file)
+    writerCsv.writerow(['SUBJECT', 'DICE'])
+    writerCsv.writerows(weightedDiceScore)
 
     print('\nSubject-wise results...')
     writer.ConsoleWriter().write(evaluator.results)
