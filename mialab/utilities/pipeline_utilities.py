@@ -47,6 +47,10 @@ class FeatureImageTypes(enum.Enum):
     T2w_GRADIENT_INTENSITY = 5
     T1w_NEIGHBORHOOD = 6
     T2w_NEIGHBORHOOD = 7
+    T1w_GAUSSIAN = 8
+    T2w_GAUSSIAN = 9
+    T1w_SALT_PEPPER = 10
+    T2w_SALT_PEPPER = 11
     #stoptodo
 
 
@@ -67,6 +71,8 @@ class FeatureExtractor:
         self.neighborhood_feature = kwargs.get('neighborhood_feature', False)
         self.t1 = kwargs.get('T1W_Image', True)
         self.t2 = kwargs.get('T2W_Image', False)
+        self.gaussian = kwargs.get('gaussian', False)
+        self.salt_pepper = kwargs.get('salt_pepper', False)
 
 
     def execute(self) -> structure.BrainImage:
@@ -107,6 +113,22 @@ class FeatureExtractor:
             if self.t2:
                 self.img.feature_images[FeatureImageTypes.T2w_NEIGHBORHOOD] = \
                     neighborhood_feature.execute(self.img.images[structure.BrainImageTypes.T2w])
+
+        if self.gaussian:
+            if self.t1:
+                self.img.feature_images[FeatureImageTypes.T1w_GAUSSIAN] = \
+                    sitk.AdditiveGaussianNoise(self.img.images[structure.BrainImageTypes.T1w], standardDeviation=500.0, mean=0.0)
+            if self.t2:
+                self.img.feature_images[FeatureImageTypes.T2w_GAUSSIAN] = \
+                    sitk.AdditiveGaussianNoise(self.img.images[structure.BrainImageTypes.T1w], standardDeviation=500.0, mean=0.0)
+
+        if self.salt_pepper:
+            if self.t1:
+                self.img.feature_images[FeatureImageTypes.T1w_SALT_PEPPER] = \
+                    sitk.SaltAndPepperNoise(self.img.images[structure.BrainImageTypes.T1w], probability=0.02, seed=42)
+            if self.t2:
+                self.img.feature_images[FeatureImageTypes.T2w_SALT_PEPPER] = \
+                    sitk.SaltAndPepperNoise(self.img.images[structure.BrainImageTypes.T2w], probability=0.02, seed=42)
         #endtodo
 
         self._generate_feature_matrix()
