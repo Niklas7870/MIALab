@@ -106,8 +106,8 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
                           'neighborhood_feature': False,
                           'T1W_Image': True,
                           'T2W_Image': False,
-                          'gaussian': True,
-                          'salt_pepper': True}
+                          'gaussian': False,
+                          'salt_pepper': False}
 
     multiprocess = False
 
@@ -168,7 +168,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
     os.makedirs(result_dir, exist_ok=True)
     #stoptodo
 
-    for test_index in range(7):
+    for test_index in range(8):
         print('-' * 5, 'Testing...')
 
         test_loop_parameter = ""
