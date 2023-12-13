@@ -11,7 +11,6 @@ def main():
     # plot the Dice coefficients per label (i.e. white matter, gray matter, hippocampus, amygdala, thalamus)
     # in a boxplot
 
-<<<<<<< HEAD
     work_directory = os.path.dirname(os.path.realpath(__file__)) + '/mia-result'
     def all_subdirs_of(b=work_directory):
         result = []
@@ -19,13 +18,6 @@ def main():
             bd = os.path.join(b, d)
             if os.path.isdir(bd): result.append(bd)
         return result
-=======
-    foldername = "2023-12-09-12-42-40.037" # must be adjusted
-    directory = os.path.join('mia-result', foldername)
-    filename = "results.csv"
-    filepath = os.path.join(directory, filename)
-    data = pd.read_csv(filepath, sep=';', header=0, index_col=["SUBJECT"])
->>>>>>> weightedDice
 
     all_subdirs = all_subdirs_of()
     for subdirs in all_subdirs:
@@ -99,7 +91,6 @@ def main():
     diceName = 'weightedDice'
 
     # dice and housdorffdistance per subject (over all labels)
-    #weightedDice = data.boxplot(by='SUBJECT', column=['SUBJECT'], rot=45, grid=False).get_figure()
     weightedDice = data.boxplot(by='SUBJECT', column=['DICE'], rot=45, grid=True).get_figure()
     plt.xlabel(subjectName)
     plt.ylabel(diceName)

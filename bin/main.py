@@ -101,7 +101,6 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
                           'normalization_pre': True,
                           'registration_pre': True,
                           'coordinates_feature': True,
-<<<<<<< HEAD
                           'intensity_feature': True,
                           'gradient_intensity_feature': True,
                           'neighborhood_feature': False,
@@ -109,10 +108,6 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
                           'T2W_Image': False}
 
     multiprocess = False
-=======
-                          'intensity_feature': False,
-                          'gradient_intensity_feature': False}
->>>>>>> weightedDice
 
     # load images for training and pre-process
     images = putil.pre_process_batch(crawler.data, pre_process_params, multi_process=multiprocess)
