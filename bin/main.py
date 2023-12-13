@@ -71,8 +71,8 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
                           'neighborhood_feature': False,
                           'T1W_Image': True,
                           'T2W_Image': False,
-                          'gaussian': True,
-                          'salt_pepper': True}
+                          'gaussian': False,
+                          'salt_pepper': False}
 
     multiprocess = False
 
@@ -133,94 +133,112 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
     os.makedirs(result_dir, exist_ok=True)
     #stoptodo
 
-    print('-' * 5, 'Testing...')
+    for i in range(7):
+        print('-' * 5, 'Testing...')
 
-    # initialize evaluator
-    evaluator = putil.init_evaluator()
+        test_loop_parameter = ""
+        if i == 1:
+            test_loop_parameter = "_gaussian_300"
+        elif i == 2:
+            test_loop_parameter = "_gaussian_1000"
+        elif i == 3:
+            test_loop_parameter = "_gaussian_2000"
+        elif i == 4:
+            test_loop_parameter = "_salt_pepper_001"
+        elif i == 5:
+            test_loop_parameter = "_salt_pepper_002"
+        elif i == 6:
+            test_loop_parameter = "_salt_pepper_005"
 
-    # crawl the training image directories
-    crawler = futil.FileSystemDataCrawler(data_test_dir,
-                                          LOADING_KEYS,
-                                          futil.BrainImageFilePathGenerator(),
-                                          futil.DataDirectoryFilter())
+        data_test_dir = data_test_dir + test_loop_parameter
 
-    # load images for testing and pre-process
-    pre_process_params['training'] = False
-    images_test = putil.pre_process_batch(crawler.data, pre_process_params, multi_process=multiprocess)
+        # initialize evaluator
+        evaluator = putil.init_evaluator()
 
-    images_prediction = []
-    images_probabilities = []
+        # crawl the training image directories
+        crawler = futil.FileSystemDataCrawler(data_test_dir,
+                                              LOADING_KEYS,
+                                              futil.BrainImageFilePathGenerator(),
+                                              futil.DataDirectoryFilter())
 
-    for img in images_test:
-        print('-' * 10, 'Testing', img.id_)
+        # load images for testing and pre-process
+        pre_process_params['training'] = False
+        images_test = putil.pre_process_batch(crawler.data, pre_process_params, multi_process=multiprocess)
 
-        start_time = timeit.default_timer()
-        predictions = forest.predict(img.feature_matrix[0])
-        probabilities = forest.predict_proba(img.feature_matrix[0])
-        print(' Time elapsed:', timeit.default_timer() - start_time, 's')
+        images_prediction = []
+        images_probabilities = []
 
-        # convert prediction and probabilities back to SimpleITK images
-        image_prediction = conversion.NumpySimpleITKImageBridge.convert(predictions.astype(np.uint8),
-                                                                        img.image_properties)
-        image_probabilities = conversion.NumpySimpleITKImageBridge.convert(probabilities, img.image_properties)
+        for img in images_test:
+            print('-' * 10, 'Testing', img.id_)
 
-        # evaluate segmentation without post-processing
-        evaluator.evaluate(image_prediction, img.images[structure.BrainImageTypes.GroundTruth], img.id_)
+            start_time = timeit.default_timer()
+            predictions = forest.predict(img.feature_matrix[0])
+            probabilities = forest.predict_proba(img.feature_matrix[0])
+            print(' Time elapsed:', timeit.default_timer() - start_time, 's')
 
-        images_prediction.append(image_prediction)
-        images_probabilities.append(image_probabilities)
+            # convert prediction and probabilities back to SimpleITK images
+            image_prediction = conversion.NumpySimpleITKImageBridge.convert(predictions.astype(np.uint8),
+                                                                            img.image_properties)
+            image_probabilities = conversion.NumpySimpleITKImageBridge.convert(probabilities, img.image_properties)
 
-    #stardtodo
-    # --> postprocessing removed
+            # evaluate segmentation without post-processing
+            evaluator.evaluate(image_prediction, img.images[structure.BrainImageTypes.GroundTruth], img.id_)
 
-    # post-process segmentation and evaluate with post-processing
-    # post_process_params = {'simple_post': True}
-    # images_post_processed = putil.post_process_batch(images_test, images_prediction, images_probabilities,
-    #                                                  post_process_params, multi_process=multiprocess)
-    #
-    for i, img in enumerate(images_test):
-    #     evaluator.evaluate(images_post_processed[i], img.images[structure.BrainImageTypes.GroundTruth],
-    #                        img.id_ + '-PP')
+            images_prediction.append(image_prediction)
+            images_probabilities.append(image_probabilities)
 
-        # save results
-        sitk.WriteImage(images_prediction[i], os.path.join(result_dir, images_test[i].id_ + '_SEG.nii.gz'), False)
-        # sitk.WriteImage(images_post_processed[i], os.path.join(result_dir, images_test[i].id_ + '_SEG-PP.mha'), True)
-    #endtodo
+        #stardtodo
+        # --> postprocessing removed
 
-    # use two writers to report the results
-    os.makedirs(result_dir, exist_ok=True)  # generate result directory, if it does not exists
-    result_file = os.path.join(result_dir, 'results.csv')
-    writer.CSVWriter(result_file).write(evaluator.results)
+        # post-process segmentation and evaluate with post-processing
+        # post_process_params = {'simple_post': True}
+        # images_post_processed = putil.post_process_batch(images_test, images_prediction, images_probabilities,
+        #                                                  post_process_params, multi_process=multiprocess)
+        #
+        for i, img in enumerate(images_test):
+        #     evaluator.evaluate(images_post_processed[i], img.images[structure.BrainImageTypes.GroundTruth],
+        #                        img.id_ + '-PP')
 
-    print('\nSubject-wise results...')
-    writer.ConsoleWriter().write(evaluator.results)
+            # save results
+            sitk.WriteImage(images_prediction[i], os.path.join(result_dir, images_test[i].id_ + '_SEG'+test_loop_parameter+'.nii.gz'), False)
+            # sitk.WriteImage(images_post_processed[i], os.path.join(result_dir, images_test[i].id_ + '_SEG-PP.mha'), True)
+            if i != 0:
+                break
+        #endtodo
 
-    # report also mean and standard deviation among all subjects
-    result_summary_file = os.path.join(result_dir, 'results_summary.csv')
-    functions = {'MEAN': np.mean, 'STD': np.std}
-    writer.CSVStatisticsWriter(result_summary_file, functions=functions).write(evaluator.results)
-    print('\nAggregated statistic results...')
-    writer.ConsoleStatisticsWriter(functions=functions).write(evaluator.results)
+        # use two writers to report the results
+        os.makedirs(result_dir, exist_ok=True)  # generate result directory, if it does not exists
+        result_file = os.path.join(result_dir, 'results'+test_loop_parameter+'.csv')
+        writer.CSVWriter(result_file).write(evaluator.results)
 
-    # clear results such that the evaluator is ready for the next evaluation
-    evaluator.clear()
+        print('\nSubject-wise results...')
+        writer.ConsoleWriter().write(evaluator.results)
 
-    #starttodo
-    # generate textfile with run-parameter
-    filename = os.path.join(result_dir, 'run-parameter.txt')
-    f = open(filename, mode='w')
-    f.write('## Random forrest ##' + '\n')
-    f.write('n_estimators: ' + str(n_estimators) + '\n')
-    f.write('max_depth: ' + str(max_depth) + '\n')
-    f.write('\n')
+        # report also mean and standard deviation among all subjects
+        result_summary_file = os.path.join(result_dir, 'results_summary'+test_loop_parameter+'.csv')
+        functions = {'MEAN': np.mean, 'STD': np.std}
+        writer.CSVStatisticsWriter(result_summary_file, functions=functions).write(evaluator.results)
+        print('\nAggregated statistic results...')
+        writer.ConsoleStatisticsWriter(functions=functions).write(evaluator.results)
 
-    f.write('## Notes ##' + '\n')
-    f.write('only T1w implemented' + '\n')
-    for key, value in pre_process_params.items():
-        f.write('%s: %s\n' % (key, value))
+        # clear results such that the evaluator is ready for the next evaluation
+        evaluator.clear()
 
-    f.close()
-    #stoptodo
+        #starttodo
+        # generate textfile with run-parameter
+        filename = os.path.join(result_dir, 'run-parameter.txt')
+        f = open(filename, mode='w')
+        f.write('## Random forrest ##' + '\n')
+        f.write('n_estimators: ' + str(n_estimators) + '\n')
+        f.write('max_depth: ' + str(max_depth) + '\n')
+        f.write('\n')
+
+        f.write('## Notes ##' + '\n')
+        for key, value in pre_process_params.items():
+            f.write('%s: %s\n' % (key, value))
+
+        f.close()
+        #stoptodo
 
 
 
