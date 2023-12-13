@@ -24,9 +24,9 @@ def main():
             imageT2 = sitk.ReadImage(imageT2_path)
             imageLabels = sitk.ReadImage(imageLabels_path)
 
-            imageT1_noise = sitk.AdditiveGaussianNoise(imageT1, standardDeviation=2000.0, mean=0.0)
-            imageT2_noise = sitk.AdditiveGaussianNoise(imageT1, standardDeviation=2000.0, mean=0.0)
-            test_dir_noise = os.path.join(test_dir + '_gaussian_2000')
+            imageT1_noise = sitk.AdditiveGaussianNoise(imageT1, standardDeviation=5000.0, mean=0.0)
+            imageT2_noise = sitk.AdditiveGaussianNoise(imageT1, standardDeviation=5000.0, mean=0.0)
+            test_dir_noise = os.path.join(test_dir + '_gaussian_5000')
             #imageT1_noise = sitk.SaltAndPepperNoise(imageT1, probability=0.01, seed=42)
             #imageT2_noise = sitk.SaltAndPepperNoise(imageT2, probability=0.01, seed=42)
             #test_dir_noise = os.path.join(test_dir + '_salt_pepper_001')

@@ -27,9 +27,7 @@ def main():
         directory = subdirs
         #foldername = "2023-12-06-09-58-32.078T1W_C_I_G_" # must be adjusted
         #directory = os.path.join('mia-result', foldername)
-        for i in range(7):
-            print('-' * 5, 'Testing...')
-
+        for i in range(8):
             test_loop_parameter = ""
             if i == 1:
                 test_loop_parameter = "_gaussian_300"
@@ -38,10 +36,12 @@ def main():
             elif i == 3:
                 test_loop_parameter = "_gaussian_2000"
             elif i == 4:
-                test_loop_parameter = "_salt_pepper_001"
+                test_loop_parameter = "_gaussian_5000"
             elif i == 5:
-                test_loop_parameter = "_salt_pepper_002"
+                test_loop_parameter = "_salt_pepper_001"
             elif i == 6:
+                test_loop_parameter = "_salt_pepper_002"
+            elif i == 7:
                 test_loop_parameter = "_salt_pepper_005"
 
             filename = "results"+test_loop_parameter+".csv"

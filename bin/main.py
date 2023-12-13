@@ -65,8 +65,8 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
     pre_process_params = {'skullstrip_pre': True,
                           'normalization_pre': True,
                           'registration_pre': True,
-                          'coordinates_feature': True,
-                          'intensity_feature': False,
+                          'coordinates_feature': False,
+                          'intensity_feature': True,
                           'gradient_intensity_feature': False,
                           'neighborhood_feature': False,
                           'T1W_Image': True,
@@ -133,30 +133,32 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
     os.makedirs(result_dir, exist_ok=True)
     #stoptodo
 
-    for i in range(7):
+    for test_index in range(7):
         print('-' * 5, 'Testing...')
 
         test_loop_parameter = ""
-        if i == 1:
+        if test_index == 1:
             test_loop_parameter = "_gaussian_300"
-        elif i == 2:
+        elif test_index == 2:
             test_loop_parameter = "_gaussian_1000"
-        elif i == 3:
+        elif test_index == 3:
             test_loop_parameter = "_gaussian_2000"
-        elif i == 4:
+        elif test_index == 4:
+            test_loop_parameter = "_gaussian_5000"
+        elif test_index == 5:
             test_loop_parameter = "_salt_pepper_001"
-        elif i == 5:
+        elif test_index == 6:
             test_loop_parameter = "_salt_pepper_002"
-        elif i == 6:
+        elif test_index == 7:
             test_loop_parameter = "_salt_pepper_005"
 
-        data_test_dir = data_test_dir + test_loop_parameter
+        test_dir = data_test_dir + test_loop_parameter
 
         # initialize evaluator
         evaluator = putil.init_evaluator()
 
         # crawl the training image directories
-        crawler = futil.FileSystemDataCrawler(data_test_dir,
+        crawler = futil.FileSystemDataCrawler(test_dir,
                                               LOADING_KEYS,
                                               futil.BrainImageFilePathGenerator(),
                                               futil.DataDirectoryFilter())
@@ -169,7 +171,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
         images_probabilities = []
 
         for img in images_test:
-            print('-' * 10, 'Testing', img.id_)
+            print('-' * 10, 'Testing', img.id_,test_loop_parameter)
 
             start_time = timeit.default_timer()
             predictions = forest.predict(img.feature_matrix[0])
@@ -202,7 +204,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
             # save results
             sitk.WriteImage(images_prediction[i], os.path.join(result_dir, images_test[i].id_ + '_SEG'+test_loop_parameter+'.nii.gz'), False)
             # sitk.WriteImage(images_post_processed[i], os.path.join(result_dir, images_test[i].id_ + '_SEG-PP.mha'), True)
-            if i != 0:
+            if test_index != 0:
                 break
         #endtodo
 
