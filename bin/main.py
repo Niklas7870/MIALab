@@ -101,11 +101,13 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
                           'normalization_pre': True,
                           'registration_pre': True,
                           'coordinates_feature': True,
-                          'intensity_feature': True,
-                          'gradient_intensity_feature': True,
+                          'intensity_feature': False,
+                          'gradient_intensity_feature': False,
                           'neighborhood_feature': False,
                           'T1W_Image': True,
-                          'T2W_Image': False}
+                          'T2W_Image': False,
+                          'gaussian': True,
+                          'salt_pepper': True}
 
     multiprocess = False
 
@@ -153,6 +155,12 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
             if value: name = name + 'G_'
         if key == 'neighborhood_feature':
             if value: name = name + 'NH_'
+        if key == 'gaussian':
+            if value: name = name + 'GA_'
+        if key == 'salt_pepper':
+            if value: name = name + 'SP_'
+
+    name = '_' + name[:-1]
 
     t = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S.%f')[:-3]  # milliseconds added (microseconds [:-3])
     t = t + name
