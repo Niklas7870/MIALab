@@ -19,12 +19,14 @@ try:
     import mialab.data.structure as structure
     import mialab.utilities.file_access_utilities as futil
     import mialab.utilities.pipeline_utilities as putil
+    import bin.test_set_creation as tset
 except ImportError:
     # Append the MIALab root directory to Python path
     sys.path.insert(0, os.path.join(os.path.dirname(sys.argv[0]), '..'))
     import mialab.data.structure as structure
     import mialab.utilities.file_access_utilities as futil
     import mialab.utilities.pipeline_utilities as putil
+    import bin.test_set_creation as tset
 
 LOADING_KEYS = [structure.BrainImageTypes.T1w,
                 structure.BrainImageTypes.T2w,
@@ -101,8 +103,8 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
                           'normalization_pre': True,
                           'registration_pre': True,
                           'coordinates_feature': True,
-                          'intensity_feature': False,
-                          'gradient_intensity_feature': False,
+                          'intensity_feature': True,
+                          'gradient_intensity_feature': True,
                           'neighborhood_feature': False,
                           'T1W_Image': True,
                           'T2W_Image': False,
@@ -168,26 +170,15 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
     os.makedirs(result_dir, exist_ok=True)
     #stoptodo
 
-    for test_index in range(8):
-        print('-' * 5, 'Testing...')
+    print('-' * 5, 'Testing...')
 
-        test_loop_parameter = ""
-        if test_index == 1:
-            test_loop_parameter = "_gaussian_300"
-        elif test_index == 2:
-            test_loop_parameter = "_gaussian_1000"
-        elif test_index == 3:
-            test_loop_parameter = "_gaussian_2000"
-        elif test_index == 4:
-            test_loop_parameter = "_gaussian_5000"
-        elif test_index == 5:
-            test_loop_parameter = "_salt_pepper_001"
-        elif test_index == 6:
-            test_loop_parameter = "_salt_pepper_002"
-        elif test_index == 7:
-            test_loop_parameter = "_salt_pepper_005"
+    test_loop_parameter = ["", "_gaussian_300", "_gaussian_1000", "_gaussian_2000", "_gaussian_5000",
+                               "_salt_pepper_001", "_salt_pepper_002", "_salt_pepper_005"]
 
-        test_dir = data_test_dir + test_loop_parameter
+    tset.main()
+
+    for str in test_loop_parameter:
+        test_dir = data_test_dir + str
 
         # initialize evaluator
         evaluator = putil.init_evaluator()
@@ -206,7 +197,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
         images_probabilities = []
 
         for img in images_test:
-            print('-' * 10, 'Testing', img.id_,test_loop_parameter)
+            print('-' * 10, 'Testing', img.id_, str)
 
             start_time = timeit.default_timer()
             predictions = forest.predict(img.feature_matrix[0])
@@ -257,7 +248,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
         #                        img.id_ + '-PP')
 
             # save results
-            sitk.WriteImage(images_prediction[i], os.path.join(result_dir, images_test[i].id_ + '_SEG'+test_loop_parameter+'.nii.gz'), False)
+            sitk.WriteImage(images_prediction[i], os.path.join(result_dir, images_test[i].id_ + '_SEG'+str+'.nii.gz'), False)
             # sitk.WriteImage(images_post_processed[i], os.path.join(result_dir, images_test[i].id_ + '_SEG-PP.mha'), True)
             if test_index != 0:
                 break
@@ -265,12 +256,12 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
 
         # use two writers to report the results
         os.makedirs(result_dir, exist_ok=True)  # generate result directory, if it does not exists
-        result_file = os.path.join(result_dir, 'results'+test_loop_parameter+'.csv')
+        result_file = os.path.join(result_dir, 'results'+str+'.csv')
         writer.CSVWriter(result_file).write(evaluator.results)
 
         import csv
 
-        result_file = os.path.join(result_dir, 'weightedDiceScore'+test_loop_parameter+'.csv')
+        result_file = os.path.join(result_dir, 'weightedDiceScore'+str+'.csv')
         file = open(result_file, 'w', encoding='UTF8', newline='')
         writerCsv = csv.writer(file)
         writerCsv.writerow(['SUBJECT', 'DICE'])
@@ -280,7 +271,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
         writer.ConsoleWriter().write(evaluator.results)
 
         # report also mean and standard deviation among all subjects
-        result_summary_file = os.path.join(result_dir, 'results_summary'+test_loop_parameter+'.csv')
+        result_summary_file = os.path.join(result_dir, 'results_summary'+str+'.csv')
         functions = {'MEAN': np.mean, 'STD': np.std}
         writer.CSVStatisticsWriter(result_summary_file, functions=functions).write(evaluator.results)
         print('\nAggregated statistic results...')

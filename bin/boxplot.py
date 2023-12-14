@@ -27,24 +27,12 @@ def main():
         directory = subdirs
         #foldername = "2023-12-06-09-58-32.078T1W_C_I_G_" # must be adjusted
         #directory = os.path.join('mia-result', foldername)
-        for i in range(8):
-            test_loop_parameter = ""
-            if i == 1:
-                test_loop_parameter = "_gaussian_300"
-            elif i == 2:
-                test_loop_parameter = "_gaussian_1000"
-            elif i == 3:
-                test_loop_parameter = "_gaussian_2000"
-            elif i == 4:
-                test_loop_parameter = "_gaussian_5000"
-            elif i == 5:
-                test_loop_parameter = "_salt_pepper_001"
-            elif i == 6:
-                test_loop_parameter = "_salt_pepper_002"
-            elif i == 7:
-                test_loop_parameter = "_salt_pepper_005"
 
-            filename = "results"+test_loop_parameter+".csv"
+        test_loop_parameter = ["", "_gaussian_300", "_gaussian_1000", "_gaussian_2000", "_gaussian_5000",
+                               "_salt_pepper_001", "_salt_pepper_002", "_salt_pepper_005"]
+
+        for str in test_loop_parameter:
+            filename = "results"+str+".csv"
             filepath = os.path.join(directory, filename)
             data = pd.read_csv(filepath, sep=';', header=0, index_col=["SUBJECT"])
 
@@ -69,14 +57,11 @@ def main():
             plt.ylabel(HDRFDSTName)
             plt.ylim(HDRFDSTYlim)
             plt.close()
-            try:
-                Accuracy_allS = data.boxplot(by='SUBJECT', column=[accuracyName], rot=45, grid=False).get_figure()
-                plt.xlabel(subjectName)
-                plt.ylabel(accuracyName)
-                plt.ylim(accuracyYlim)
-                plt.close()
-            except Exception as e:
-                print(f"An error occurred: {e}")
+            Accuracy_allS = data.boxplot(by='SUBJECT', column=[accuracyName], rot=45, grid=False).get_figure()
+            plt.xlabel(subjectName)
+            plt.ylabel(accuracyName)
+            plt.ylim(accuracyYlim)
+            plt.close()
 
             # DICE, HDRFDST, ACCURACY per label (over all subjects)
             Dice_allL = data.boxplot(by='LABEL', column=[diceName], grid=False).get_figure()
@@ -89,36 +74,27 @@ def main():
             plt.ylabel(HDRFDSTName)
             plt.ylim(HDRFDSTYlim)
             plt.close()
-            try:
-                Accuracy_allL = data.boxplot(by='LABEL', column=[accuracyName], grid=False).get_figure()
-                plt.xlabel(labelName)
-                plt.ylabel(accuracyName)
-                plt.ylim(accuracyYlim)
-                plt.close()
-            except Exception as e:
-                print(f"An error occurred: {e}")
+            Accuracy_allL = data.boxplot(by='LABEL', column=[accuracyName], grid=False).get_figure()
+            plt.xlabel(labelName)
+            plt.ylabel(accuracyName)
+            plt.ylim(accuracyYlim)
+            plt.close()
 
             # save figures
             Dice_allS.tight_layout()
-            Dice_allS.savefig(os.path.join(directory, 'Dice_allS'+test_loop_parameter+'.png'), dpi=600)
+            Dice_allS.savefig(os.path.join(directory, 'Dice_allS'+str+'.png'), dpi=600)
             HDRFDST_allS.tight_layout()
-            HDRFDST_allS.savefig(os.path.join(directory, 'HDRFDST_allS'+test_loop_parameter+'.png'), dpi=600)
-            try:
-                Accuracy_allS.tight_layout()
-                Accuracy_allS.savefig(os.path.join(directory, 'Accuracy_allS'+test_loop_parameter+'.png'), dpi=600)
-            except Exception as e:
-                print(f"An error occurred: {e}")
+            HDRFDST_allS.savefig(os.path.join(directory, 'HDRFDST_allS'+str+'.png'), dpi=600)
+            Accuracy_allS.tight_layout()
+            Accuracy_allS.savefig(os.path.join(directory, 'Accuracy_allS'+str+'.png'), dpi=600)
             Dice_allL.tight_layout()
-            Dice_allL.savefig(os.path.join(directory, 'Dice_allL'+test_loop_parameter+'.png'), dpi=600)
+            Dice_allL.savefig(os.path.join(directory, 'Dice_allL'+str+'.png'), dpi=600)
             HDRFDST_allL.tight_layout()
-            HDRFDST_allL.savefig(os.path.join(directory, 'HDRFDST_allL'+test_loop_parameter+'.png'), dpi=600)
-            try:
-                Accuracy_allL.tight_layout()
-                Accuracy_allL.savefig(os.path.join(directory, 'Accuracy_allL'+test_loop_parameter+'.png'), dpi=600)
-            except Exception as e:
-                print(f"An error occurred: {e}")
+            HDRFDST_allL.savefig(os.path.join(directory, 'HDRFDST_allL'+str+'.png'), dpi=600)
+            Accuracy_allL.tight_layout()
+            Accuracy_allL.savefig(os.path.join(directory, 'Accuracy_allL'+str+'.png'), dpi=600)
 
-            filename = "weightedDiceScore"+test_loop_parameter+".csv"
+            filename = "weightedDiceScore"+str+".csv"
             filepath = os.path.join(directory, filename)
             data = pd.read_csv(filepath, sep=',', header=0, index_col=["SUBJECT"])
 
@@ -130,7 +106,7 @@ def main():
             plt.ylabel(diceName)
             plt.ylim(diceYlim)
             weightedDice.tight_layout()
-            weightedDice.savefig(os.path.join(directory, 'WEIGHTEDDICE_allS'+test_loop_parameter+'.png'), dpi=600)
+            weightedDice.savefig(os.path.join(directory, 'WEIGHTEDDICE_allS'+str+'.png'), dpi=600)
 
             #plt.show()
 
