@@ -177,8 +177,8 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
 
     tset.main()
 
-    for str in test_loop_parameter:
-        test_dir = data_test_dir + str
+    for test_str in test_loop_parameter:
+        test_dir = data_test_dir + test_str
 
         # initialize evaluator
         evaluator = putil.init_evaluator()
@@ -197,7 +197,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
         images_probabilities = []
 
         for img in images_test:
-            print('-' * 10, 'Testing', img.id_, str)
+            print('-' * 10, 'Testing', img.id_, test_str)
 
             start_time = timeit.default_timer()
             predictions = forest.predict(img.feature_matrix[0])
@@ -248,20 +248,20 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
         #                        img.id_ + '-PP')
 
             # save results
-            sitk.WriteImage(images_prediction[i], os.path.join(result_dir, images_test[i].id_ + '_SEG'+str+'.nii.gz'), False)
+            sitk.WriteImage(images_prediction[i], os.path.join(result_dir, images_test[i].id_ + '_SEG'+test_str+'.nii.gz'), False)
             # sitk.WriteImage(images_post_processed[i], os.path.join(result_dir, images_test[i].id_ + '_SEG-PP.mha'), True)
-            if test_index != 0:
+            if test_str != "":
                 break
         #endtodo
 
         # use two writers to report the results
         os.makedirs(result_dir, exist_ok=True)  # generate result directory, if it does not exists
-        result_file = os.path.join(result_dir, 'results'+str+'.csv')
+        result_file = os.path.join(result_dir, 'results'+test_str+'.csv')
         writer.CSVWriter(result_file).write(evaluator.results)
 
         import csv
 
-        result_file = os.path.join(result_dir, 'weightedDiceScore'+str+'.csv')
+        result_file = os.path.join(result_dir, 'weightedDiceScore'+test_str+'.csv')
         file = open(result_file, 'w', encoding='UTF8', newline='')
         writerCsv = csv.writer(file)
         writerCsv.writerow(['SUBJECT', 'DICE'])
@@ -271,7 +271,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
         writer.ConsoleWriter().write(evaluator.results)
 
         # report also mean and standard deviation among all subjects
-        result_summary_file = os.path.join(result_dir, 'results_summary'+str+'.csv')
+        result_summary_file = os.path.join(result_dir, 'results_summary'+test_str+'.csv')
         functions = {'MEAN': np.mean, 'STD': np.std}
         writer.CSVStatisticsWriter(result_summary_file, functions=functions).write(evaluator.results)
         print('\nAggregated statistic results...')

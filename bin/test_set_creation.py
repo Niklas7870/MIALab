@@ -11,13 +11,13 @@ def main():
     test_loop_parameter = ["", "_gaussian_300","_gaussian_1000","_gaussian_2000","_gaussian_5000",
                            "_salt_pepper_001","_salt_pepper_002","_salt_pepper_005"]
 
-    for str in test_loop_parameter:
-        save_dir = test_dir + str
+    for test_str in test_loop_parameter:
+        save_dir = test_dir + test_str
 
         if not os.path.exists(save_dir):
             shutil.copytree(test_dir, save_dir)
 
-            parameter = float(str.rsplit("_")[-1])
+            parameter = float(test_str.rsplit("_")[-1])
 
             for subdir, dirs, files in os.walk(save_dir):
                 for dir in dirs:

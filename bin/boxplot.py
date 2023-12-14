@@ -31,8 +31,8 @@ def main():
         test_loop_parameter = ["", "_gaussian_300", "_gaussian_1000", "_gaussian_2000", "_gaussian_5000",
                                "_salt_pepper_001", "_salt_pepper_002", "_salt_pepper_005"]
 
-        for str in test_loop_parameter:
-            filename = "results"+str+".csv"
+        for test_str in test_loop_parameter:
+            filename = "results" + test_str + ".csv"
             filepath = os.path.join(directory, filename)
             data = pd.read_csv(filepath, sep=';', header=0, index_col=["SUBJECT"])
 
@@ -82,19 +82,19 @@ def main():
 
             # save figures
             Dice_allS.tight_layout()
-            Dice_allS.savefig(os.path.join(directory, 'Dice_allS'+str+'.png'), dpi=600)
+            Dice_allS.savefig(os.path.join(directory, 'Dice_allS' + test_str + '.png'), dpi=600)
             HDRFDST_allS.tight_layout()
-            HDRFDST_allS.savefig(os.path.join(directory, 'HDRFDST_allS'+str+'.png'), dpi=600)
+            HDRFDST_allS.savefig(os.path.join(directory, 'HDRFDST_allS' + test_str + '.png'), dpi=600)
             Accuracy_allS.tight_layout()
-            Accuracy_allS.savefig(os.path.join(directory, 'Accuracy_allS'+str+'.png'), dpi=600)
+            Accuracy_allS.savefig(os.path.join(directory, 'Accuracy_allS' + test_str + '.png'), dpi=600)
             Dice_allL.tight_layout()
-            Dice_allL.savefig(os.path.join(directory, 'Dice_allL'+str+'.png'), dpi=600)
+            Dice_allL.savefig(os.path.join(directory, 'Dice_allL' + test_str + '.png'), dpi=600)
             HDRFDST_allL.tight_layout()
-            HDRFDST_allL.savefig(os.path.join(directory, 'HDRFDST_allL'+str+'.png'), dpi=600)
+            HDRFDST_allL.savefig(os.path.join(directory, 'HDRFDST_allL' + test_str + '.png'), dpi=600)
             Accuracy_allL.tight_layout()
-            Accuracy_allL.savefig(os.path.join(directory, 'Accuracy_allL'+str+'.png'), dpi=600)
+            Accuracy_allL.savefig(os.path.join(directory, 'Accuracy_allL' + test_str + '.png'), dpi=600)
 
-            filename = "weightedDiceScore"+str+".csv"
+            filename = "weightedDiceScore" + test_str + ".csv"
             filepath = os.path.join(directory, filename)
             data = pd.read_csv(filepath, sep=',', header=0, index_col=["SUBJECT"])
 
@@ -106,7 +106,7 @@ def main():
             plt.ylabel(diceName)
             plt.ylim(diceYlim)
             weightedDice.tight_layout()
-            weightedDice.savefig(os.path.join(directory, 'WEIGHTEDDICE_allS'+str+'.png'), dpi=600)
+            weightedDice.savefig(os.path.join(directory, 'WEIGHTEDDICE_allS' + test_str + '.png'), dpi=600)
 
             #plt.show()
 
