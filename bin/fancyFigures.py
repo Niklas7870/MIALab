@@ -5,14 +5,19 @@ import pandas as pd
 import os
 
 workdirectery = 'mia-result/Results_all/'
+folderNames = ["00_C", "01_T1W_C_I", "02_T1W_C_G", "03_T1W_C_NH", "04_T1W_C_I_G_NH", "05_T2W_C_I", "06_T2W_C_G", "07_T2W_C_NH",
+               "08_T2W_C_I_G_NH", "09_T1W_T2W_C_I_G_NH"]
 
-label_mapping = {
-            1: 'Amygdala',
-            2: 'GreyMatter',
-            3: 'Hippocampus',
-            4: 'Thalamus',
-            5: 'WhiteMatter'
-        }
+fileNameNoise = ['_gaussian_300', '_gaussian_1000', '_gaussian_2000', '_gaussian_5000', '_salt_pepper_001',
+                 '_salt_pepper_002', '_salt_pepper_005']
+
+color1 = '#ED7D31'
+color2 = '#70AD47'
+color3 = 'DarkBlue'
+colorGray = '#D9D9D9'
+
+flierprop1 = dict(markeredgecolor=color1)
+flierprop2 = dict(markeredgecolor=color2)
 
 def plotGraphs(foldername1, foldername2):
 
@@ -20,9 +25,6 @@ def plotGraphs(foldername1, foldername2):
 
     dataT1 = pd.read_csv(workdirectery + foldername1 + '/' + fileNameOrigin + '.csv', sep=';', header=0, index_col=["SUBJECT"])
     dataT2 = pd.read_csv(workdirectery + foldername2 + '/' + fileNameOrigin + '.csv', sep=';', header=0, index_col=["SUBJECT"])
-
-    fileNameNoise = ['_gaussian_300', '_gaussian_1000', '_gaussian_2000', '_gaussian_5000', '_salt_pepper_001',
-                     '_salt_pepper_002', '_salt_pepper_005']
 
     noiseDataT1 = []
     noiseDataT2 = []
@@ -51,12 +53,6 @@ def plotGraphs(foldername1, foldername2):
     fig, axes = plt.subplots(nrows=2, figsize=(10, 7), gridspec_kw={'height_ratios': [4, 1], 'hspace': 0.4})
     ax2 = axes[0].twinx()
 
-    color1 = '#ED7D31'
-    color2 = '#70AD47'
-    color3 = 'DarkBlue'
-    colorGray = '#D9D9D9'
-    flierprop1 = dict(markeredgecolor=color1)
-    flierprop2 = dict(markeredgecolor=color2)
     rotation = 0
 
     mean = []
@@ -83,7 +79,7 @@ def plotGraphs(foldername1, foldername2):
     patchT1 = mpatches.Patch(color=color1, label='T1w')
     patchT2 = mpatches.Patch(color=color2, label='T2w')
     patchDots = mpatches.Patch(color=color3, label='hausdorff')
-    axes[0].legend(handles=[patchT1, patchT2, patchDots])
+    axes[0].legend(handles=[patchT1, patchT2, patchDots], loc='lower left')
     axes[0].set_title('comparison of dice and hausdorff form T1 and T2')
 
     totalNoiseDataT1 = noiseDataT1[0]
@@ -154,15 +150,62 @@ def plotGraphs(foldername1, foldername2):
     axes[1].set_xlabel(labelName)
     axes[1].set_title('relative dice deviation from noise test data')
     axes[1].grid(axis='y', which='both', color=colorGray, linestyle='-', linewidth=1)
-    axes[1].legend(handles=[patchT1, patchT2], loc='lower left')
+    axes[1].legend(handles=[patchT1, patchT2], loc='center right', bbox_to_anchor=(1.12, 0.5))
 
     fig.suptitle("performance of features " + foldername1 + ' and ' + foldername2, fontsize=16)
 
     fig.savefig(os.path.join(workdirectery, foldername1 + '_and_' + foldername2 + '.png'), dpi=600)
 
+    #plt.show()
+
+
+def plotWeightedDice():
+
+    fileName = 'weightedDiceScore'
+    fileNameResults = 'results'
+
+    dfWDice = pd.DataFrame()
+    dfDice = pd.DataFrame()
+    dataDice = pd.DataFrame()
+
+    for folder in folderNames:
+        dfBufferDice = pd.read_csv(workdirectery + folder + '/' + fileName + '.csv',
+                                       sep=',', header=0, index_col=["SUBJECT"])
+        dfBufferDice['FOLDER'] = [folder] * (dfBufferDice.shape[0])
+        dfWDice = pd.concat([dfWDice, dfBufferDice])
+
+
+        dfBuffer = pd.read_csv(workdirectery + folder + '/' + fileNameResults + '.csv',
+                                   sep=';', header=0)
+        dfBuffer['FOLDER'] = [folder] * (dfBuffer.shape[0])
+        dfDice = pd.concat([dfWDice, dfBuffer])
+
+        # individual subjects (label mean value)
+        subjects = dfBuffer['SUBJECT'].unique()
+        for subject in subjects:
+            dfsubject = dfBuffer[dfBuffer['SUBJECT'] == subject]
+            meanDice = dfsubject['DICE'].mean()
+            dfS = pd.DataFrame([[subject, meanDice, folder]],
+                               columns=['SUBJECT', 'DICE', 'FOLDER'])
+            dataDice = pd.concat([dataDice, dfS])
+
+    rotation = 30
+
+    ax = dfWDice.boxplot(by='FOLDER', column=['DICE'], rot=rotation, grid=False, color=color1, flierprops=flierprop1)
+    dataDice.boxplot(ax=ax, by='FOLDER', column=['DICE'], rot=rotation, grid=False, color=color2, flierprops=flierprop2)
+    # dots.plot(ax = ax2, by=labelName, column=[hausdorffName])
+    plt.ylim(0, 1)
+    plt.ylabel('DICE')
+    plt.grid(axis='y', which='both', color=colorGray, linestyle='-', linewidth=1)
+    # axes[0].legend(['bla', 'blu', 'bla', 'blu', 'bla', 'blu', 'bla', 'blu'])
+    plt.title('weighted dice Score')
+    patchWD = mpatches.Patch(color=color1, label='weighted dice')
+    patchD = mpatches.Patch(color=color2, label='dice')
+    plt.legend(handles=[patchWD, patchD], loc='lower left')
+
     plt.show()
 
-
+    plt.savefig(os.path.join(workdirectery, 'diceStuff.png'), dpi=600)
 
 
 def main():
@@ -192,6 +235,8 @@ def main():
     foldername2 = "08_T2W_C_I_G_NH" # must be adjusted
 
     plotGraphs(foldername1, foldername2)
+
+    plotWeightedDice()
 
 
 
