@@ -48,30 +48,32 @@ def main():
     ACCURACYYlimS = [0, 1]
     folderName = 'Folder'
 
+    rotation = 90
+
     # dice and hausdorffdistance per folder (over all subject & labels)
-    Dice_meanLS = dataLS.boxplot(by='FOLDER', column=['DICE'], rot=0, grid=False).get_figure()
+    Dice_meanLS = dataLS.boxplot(by='FOLDER', column=['DICE'], rot=rotation, grid=False).get_figure()
     plt.xlabel(folderName)
     plt.ylabel(diceName)
     plt.ylim(diceYlimLS)
-    HDRFDST_meanLS = dataLS.boxplot(by='FOLDER', column=['HDRFDST'], rot=0, grid=False).get_figure()
+    HDRFDST_meanLS = dataLS.boxplot(by='FOLDER', column=['HDRFDST'], rot=rotation, grid=False).get_figure()
     plt.xlabel(folderName)
     plt.ylabel(HDRFDSTName)
     plt.ylim(HDRFDSTYlimLS)
-    ACCURACY_meanLS = dataLS.boxplot(by='FOLDER', column=['ACURCY'], rot=0, grid=False).get_figure()
+    ACCURACY_meanLS = dataLS.boxplot(by='FOLDER', column=['ACURCY'], rot=rotation, grid=False).get_figure()
     plt.xlabel(folderName)
     plt.ylabel(ACCURACYName)
     plt.ylim(ACCURACYYlimLS)
 
     # dice and hausdorffdistance per folder (over all subject (label mean value))
-    Dice_meanS = dataS.boxplot(by='FOLDER', column=['DICE'], rot=0, grid=False).get_figure()
+    Dice_meanS = dataS.boxplot(by='FOLDER', column=['DICE'], rot=rotation, grid=False).get_figure()
     plt.xlabel(folderName)
     plt.ylabel(diceName)
     plt.ylim(diceYlimS)
-    HDRFDST_meanS = dataS.boxplot(by='FOLDER', column=['HDRFDST'], rot=0, grid=False).get_figure()
+    HDRFDST_meanS = dataS.boxplot(by='FOLDER', column=['HDRFDST'], rot=rotation, grid=False).get_figure()
     plt.xlabel(folderName)
     plt.ylabel(HDRFDSTName)
     plt.ylim(HDRFDSTYlimS)
-    ACCURACY_meanS = dataS.boxplot(by='FOLDER', column=['ACURCY'], rot=0, grid=False).get_figure()
+    ACCURACY_meanS = dataS.boxplot(by='FOLDER', column=['ACURCY'], rot=rotation, grid=False).get_figure()
     plt.xlabel(folderName)
     plt.ylabel(ACCURACYName)
     plt.ylim(ACCURACYYlimS)
