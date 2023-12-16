@@ -105,6 +105,7 @@ def main():
             plt.xlabel(subjectName)
             plt.ylabel(diceName)
             plt.ylim(diceYlim)
+            plt.close()
             weightedDice.tight_layout()
             weightedDice.savefig(os.path.join(directory, 'WEIGHTEDDICE_allS' + test_str + '.png'), dpi=600)
 
