@@ -8,6 +8,9 @@ workdirectery = 'mia-result/Results_all/'
 folderNames = ["00_C", "01_T1W_C_I", "02_T1W_C_G", "03_T1W_C_NH", "04_T1W_C_I_G_NH", "05_T2W_C_I", "06_T2W_C_G", "07_T2W_C_NH",
                "08_T2W_C_I_G_NH", "09_T1W_T2W_C_I_G_NH"]
 
+plotLabels = ["0", "1-T1-I", "2-T1-G", "3-T1-NH", "4-T1-I-G-NH", "5-T2-C-I", "6-T2-G", "7-T2-NH", "8-T2-I-G-NH",
+                  "9-T1-T2-I-G-NH"]
+
 fileNameNoise = ['_gaussian_300', '_gaussian_1000', '_gaussian_2000', '_gaussian_5000', '_salt_pepper_001',
                  '_salt_pepper_002', '_salt_pepper_005']
 
@@ -23,8 +26,11 @@ def plotGraphs(foldername1, foldername2):
 
     fileNameOrigin = 'results'
 
+
+
     dataT1 = pd.read_csv(workdirectery + foldername1 + '/' + fileNameOrigin + '.csv', sep=';', header=0, index_col=["SUBJECT"])
-    dataT2 = pd.read_csv(workdirectery + foldername2 + '/' + fileNameOrigin + '.csv', sep=';', header=0, index_col=["SUBJECT"])
+    if foldername2 != None:
+        dataT2 = pd.read_csv(workdirectery + foldername2 + '/' + fileNameOrigin + '.csv', sep=';', header=0, index_col=["SUBJECT"])
 
     noiseDataT1 = []
     noiseDataT2 = []
@@ -32,7 +38,8 @@ def plotGraphs(foldername1, foldername2):
     for fileAppendix in fileNameNoise:
         noiseDataT1.append(pd.read_csv(workdirectery + foldername1 + '/' + fileNameOrigin + fileAppendix + '.csv',
                                        sep=';', header=0, index_col=["SUBJECT"]))
-        noiseDataT2.append(pd.read_csv(workdirectery + foldername2 + '/' + fileNameOrigin + fileAppendix + '.csv',
+        if foldername2 != None:
+            noiseDataT2.append(pd.read_csv(workdirectery + foldername2 + '/' + fileNameOrigin + fileAppendix + '.csv',
                                        sep=';', header=0, index_col=["SUBJECT"]))
 
     # Plot Parameter
@@ -68,30 +75,44 @@ def plotGraphs(foldername1, foldername2):
 
     # add DataFrames to subplots
     dataT1.boxplot(ax=axes[0], by=labelName, column=[diceName], rot=rotation, grid=False, color=color1, flierprops=flierprop1)
-    dataT2.boxplot(ax=axes[0], by=labelName, column=[diceName], rot=rotation, grid=False, color=color2, flierprops=flierprop2)
+    if foldername2 != None:
+        dataT2.boxplot(ax=axes[0], by=labelName, column=[diceName], rot=rotation, grid=False, color=color2, flierprops=flierprop2)
     # dots.plot(ax = ax2, by=labelName, column=[hausdorffName])
     axes[0].set_ylim(0, 1)
     axes[0].set_ylabel(diceName)
-    ax2.set_ylim(0, 20)
-    ax2.set_yticks(np.arange(0, 20, 4))
+    if foldername2 != None:
+        ax2.set_ylim(0, 20)
+        ax2.set_yticks(np.arange(0, 20, 4))
     axes[0].grid(axis='y', which='both', color=colorGray, linestyle='-', linewidth=1)
     #axes[0].legend(['bla', 'blu', 'bla', 'blu', 'bla', 'blu', 'bla', 'blu'])
     patchT1 = mpatches.Patch(color=color1, label='T1w')
     patchT2 = mpatches.Patch(color=color2, label='T2w')
     patchDots = mpatches.Patch(color=color3, label='hausdorff')
-    axes[0].legend(handles=[patchT1, patchT2, patchDots], loc='lower left')
+    if foldername2 != None:
+        axes[0].legend(handles=[patchT1, patchT2, patchDots], loc='lower left')
+    else:
+        axes[0].legend(handles=[patchT1, patchDots], loc='lower left')
+
     axes[0].set_title('comparison of dice and hausdorff form T1 and T2')
 
+    cols = dataT1.columns.difference(['LABEL'])
     totalNoiseDataT1 = noiseDataT1[0]
-    totalNoiseDataT2 = noiseDataT2[0]
-
-    bla = noiseDataT1[0].set_index(labelName).subtract(dataT1.set_index(labelName))
+    totalNoiseDataT1[cols] = totalNoiseDataT1[cols].sub(dataT1[cols])
+    totalNoiseDataT2 = []
+    if foldername2 != None:
+        totalNoiseDataT2 = noiseDataT2[0]
+        totalNoiseDataT2[cols] = totalNoiseDataT2[cols].sub(dataT2[cols])
 
     for index in range(1, len(fileNameNoise)):
-        totalNoiseDataT1 = pd.concat([totalNoiseDataT1, dataT1.set_index(labelName).subtract(noiseDataT1[index].set_index(labelName))])
+        NoiseBuffer = noiseDataT1[index]
+        NoiseBuffer[cols] = NoiseBuffer[cols].sub(dataT1[cols])
+        totalNoiseDataT1 = pd.concat([totalNoiseDataT1, NoiseBuffer])
 
-    for index in range(1, len(fileNameNoise)):
-        totalNoiseDataT2 = pd.concat([totalNoiseDataT2, dataT2.set_index(labelName).subtract(noiseDataT2[index].set_index(labelName))])
+    if foldername2 != None:
+        for index in range(1, len(fileNameNoise)):
+            NoiseBuffer = noiseDataT2[index]
+            NoiseBuffer[cols] = NoiseBuffer[cols].sub(dataT2[cols])
+            totalNoiseDataT2 = pd.concat([totalNoiseDataT2, NoiseBuffer])
 
     meanNoiseT1 = []
     maxNoiseT1 = []
@@ -110,18 +131,21 @@ def plotGraphs(foldername1, foldername2):
     meanNoiseT2 = []
     maxNoiseT2 = []
     minNoiseT2 = []
-    labels = totalNoiseDataT2[labelName].unique()
 
-    counter = 0
+    if foldername2 != None:
+        labels = totalNoiseDataT2[labelName].unique()
 
-    for label in labels:
-        counter += 1
-        if counter >= 6:
-            break
-        dfLabelT2 = totalNoiseDataT2[totalNoiseDataT2[labelName] == label]
-        meanNoiseT2.append(dfLabelT2[diceName].mean())
-        maxNoiseT2.append(dfLabelT2[diceName].max())
-        minNoiseT2.append(dfLabelT2[diceName].min())
+        counter = 0
+
+        for label in labels:
+            counter += 1
+            if counter >= 6:
+                break
+            dfLabelT2 = totalNoiseDataT2[totalNoiseDataT2[labelName] == label]
+            meanNoiseT2.append(dfLabelT2[diceName].mean())
+            maxNoiseT2.append(dfLabelT2[diceName].max())
+            minNoiseT2.append(dfLabelT2[diceName].min())
+
 
     maxErrorT1 = np.subtract(maxNoiseT1, meanNoiseT1)
     minErrorT1 = np.subtract(minNoiseT1, meanNoiseT1)
@@ -141,20 +165,26 @@ def plotGraphs(foldername1, foldername2):
                      capthick=capthick, ms=markersize, color=color1)
 
     error = [abs(minErrorT2), abs(maxErrorT2)]
-    axes[1].errorbar(labels, meanNoiseT2, yerr=error, fmt='o', elinewidth=elinewidth, capsize=capsize,
-                     capthick=capthick, ms=markersize, color=color2)
-    axes[1].set_ylim(0, 1)
-    axes[1].set_yticks(np.arange(0, 1, 0.3))
+    if foldername2 != None:
+        axes[1].errorbar(labels, meanNoiseT2, yerr=error, fmt='o', elinewidth=elinewidth, capsize=capsize,
+                        capthick=capthick, ms=markersize, color=color2)
+    axes[1].set_ylim(-1, 0.25)
+    axes[1].set_yticks(np.arange(-1, 0.25, 0.25))
     axes[1].set_xlim(-0.5, 4.5)
     axes[1].set_ylabel('relative ' + diceName)
     axes[1].set_xlabel(labelName)
     axes[1].set_title('relative dice deviation from noise test data')
     axes[1].grid(axis='y', which='both', color=colorGray, linestyle='-', linewidth=1)
-    axes[1].legend(handles=[patchT1, patchT2], loc='center right', bbox_to_anchor=(1.12, 0.5))
 
-    fig.suptitle("performance of features " + foldername1 + ' and ' + foldername2, fontsize=16)
+    if foldername2 != None:
+        axes[1].legend(handles=[patchT1, patchT2], loc='center right', bbox_to_anchor=(1.12, 0.5))
+        fig.suptitle("performance of features " + foldername1 + ' and ' + foldername2, fontsize=16)
+        fig.savefig(os.path.join(workdirectery, foldername1 + '_and_' + foldername2 + '.png'), dpi=600)
+    else:
+        axes[1].legend(handles=[patchT1], loc='center right', bbox_to_anchor=(1.12, 0.5))
+        fig.suptitle("performance of features " + foldername1, fontsize=16)
+        fig.savefig(os.path.join(workdirectery, foldername1 + '.png'), dpi=600)
 
-    fig.savefig(os.path.join(workdirectery, foldername1 + '_and_' + foldername2 + '.png'), dpi=600)
 
     #plt.show()
 
@@ -168,44 +198,106 @@ def plotWeightedDice():
     dfDice = pd.DataFrame()
     dataDice = pd.DataFrame()
 
-    for folder in folderNames:
-        dfBufferDice = pd.read_csv(workdirectery + folder + '/' + fileName + '.csv',
+    for i in range(0, len(folderNames)):
+        dfBufferDice = pd.read_csv(workdirectery + folderNames[i] + '/' + fileName + '.csv',
                                        sep=',', header=0, index_col=["SUBJECT"])
-        dfBufferDice['FOLDER'] = [folder] * (dfBufferDice.shape[0])
+        dfBufferDice['FOLDER'] = [plotLabels[i]] * (dfBufferDice.shape[0])
         dfWDice = pd.concat([dfWDice, dfBufferDice])
 
 
-        dfBuffer = pd.read_csv(workdirectery + folder + '/' + fileNameResults + '.csv',
+        dfBuffer = pd.read_csv(workdirectery + folderNames[i] + '/' + fileNameResults + '.csv',
                                    sep=';', header=0)
-        dfBuffer['FOLDER'] = [folder] * (dfBuffer.shape[0])
-        dfDice = pd.concat([dfWDice, dfBuffer])
+        dfBuffer['FOLDER'] = [plotLabels[i]] * (dfBuffer.shape[0])
+        #dfDice = pd.concat([dfDice, dfBuffer])
 
         # individual subjects (label mean value)
         subjects = dfBuffer['SUBJECT'].unique()
         for subject in subjects:
             dfsubject = dfBuffer[dfBuffer['SUBJECT'] == subject]
             meanDice = dfsubject['DICE'].mean()
-            dfS = pd.DataFrame([[subject, meanDice, folder]],
+            dfS = pd.DataFrame([[subject, meanDice, plotLabels[i]]],
                                columns=['SUBJECT', 'DICE', 'FOLDER'])
             dataDice = pd.concat([dataDice, dfS])
 
-    rotation = 30
+    rotation = 90
 
-    ax = dfWDice.boxplot(by='FOLDER', column=['DICE'], rot=rotation, grid=False, color=color1, flierprops=flierprop1)
-    dataDice.boxplot(ax=ax, by='FOLDER', column=['DICE'], rot=rotation, grid=False, color=color2, flierprops=flierprop2)
+    figureSize = (12, 8)
+
+    ax = dfWDice.boxplot(by='FOLDER', column=['DICE'], rot=rotation, grid=False, color=color1, flierprops=flierprop1,
+                         figsize=figureSize)
+    dataDice.boxplot(ax=ax, by='FOLDER', column=['DICE'], rot=rotation, grid=False, color=color2, flierprops=flierprop2,
+                     figsize=figureSize)
     # dots.plot(ax = ax2, by=labelName, column=[hausdorffName])
     plt.ylim(0, 1)
     plt.ylabel('DICE')
+    plt.xlabel("feature combination")
     plt.grid(axis='y', which='both', color=colorGray, linestyle='-', linewidth=1)
     # axes[0].legend(['bla', 'blu', 'bla', 'blu', 'bla', 'blu', 'bla', 'blu'])
     plt.title('weighted dice Score')
     patchWD = mpatches.Patch(color=color1, label='weighted dice')
     patchD = mpatches.Patch(color=color2, label='dice')
     plt.legend(handles=[patchWD, patchD], loc='lower left')
+    plt.tight_layout()
 
-    plt.show()
+    #plt.show()
 
     plt.savefig(os.path.join(workdirectery, 'diceStuff.png'), dpi=600)
+
+    plt.ylim(0.4, 0.75)
+
+    plt.savefig(os.path.join(workdirectery, 'diceStuffZoomed.png'), dpi=600)
+
+def plotNoiseData():
+
+    fileNameResults = 'results'
+
+    folderNameNoiseTraining = ["10_T1W_C_I_GA_SP", "11_T1W_C_G_GA_SP", "12_T1W_C_NH_GA_SP"]
+
+    dfNDice = pd.DataFrame()
+    dfDice = pd.DataFrame()
+    dataDice = pd.DataFrame()
+
+    for i in range(0, len(folderNameNoiseTraining)):
+
+        dfBufferDice = pd.read_csv(workdirectery + folderNameNoiseTraining[i] + '/' + fileNameResults + '.csv',
+                                       sep=';', header=0)
+        dfBufferDice['FOLDER'] = [plotLabels[i+1]] * (dfBufferDice.shape[0])
+        dfNDice = pd.concat([dfNDice, dfBufferDice])
+
+        dfBuffer = pd.read_csv(workdirectery + folderNames[i+1] + '/' + fileNameResults + '.csv',
+                                   sep=';', header=0)
+        dfBuffer['FOLDER'] = [plotLabels[i+1]] * (dfBuffer.shape[0])
+        dfDice = pd.concat([dfDice, dfBuffer])
+
+        # # individual subjects (label mean value)
+        # subjects = dfBuffer['SUBJECT'].unique()
+        # for subject in subjects:
+        #     dfsubject = dfBuffer[dfBuffer['SUBJECT'] == subject]
+        #     meanDice = dfsubject['DICE'].mean()
+        #     dfS = pd.DataFrame([[subject, meanDice, folderNameNoiseTraining[i]]],
+        #                        columns=['SUBJECT', 'DICE', 'FOLDER'])
+        #     dataDice = pd.concat([dataDice, dfS])
+
+    rotation = 0
+
+    ax = dfDice.boxplot(by='FOLDER', column=['DICE'], rot=rotation, grid=False, color=color1, flierprops=flierprop1)
+    dfNDice.boxplot(ax=ax, by='FOLDER', column=['DICE'], rot=rotation, grid=False, color=color2, flierprops=flierprop2)
+    # dots.plot(ax = ax2, by=labelName, column=[hausdorffName])
+    plt.ylim(0, 1)
+    plt.ylabel('DICE')
+    plt.xlabel("feature combination")
+    plt.grid(axis='y', which='both', color=colorGray, linestyle='-', linewidth=1)
+    plt.title('noisy dice Score')
+    patchWD = mpatches.Patch(color=color1, label='dice')
+    patchD = mpatches.Patch(color=color2, label='noisy dice')
+    plt.legend(handles=[patchWD, patchD], loc='lower left')
+    plt.tight_layout()
+
+    #plt.show()
+
+    plt.savefig(os.path.join(workdirectery, 'noiseStuff.png'), dpi=600)
+
+
 
 
 def main():
@@ -215,6 +307,10 @@ def main():
     # plot the Dice coefficients per label (i.e. white matter, gray matter, hippocampus, amygdala, thalamus)
     # in a boxplot
 
+    foldername1 = "00_C"
+    foldername2 = None
+
+    plotGraphs(foldername1, foldername2)
 
     foldername1 = "01_T1W_C_I" # must be adjusted
     foldername2 = "05_T2W_C_I" # must be adjusted
@@ -236,10 +332,29 @@ def main():
 
     plotGraphs(foldername1, foldername2)
 
+    foldername1 = "09_T1W_T2W_C_I_G_NH"
+    foldername2 = None
+
+    plotGraphs(foldername1, foldername2)
+
+    foldername1 = "01_T1W_C_I"
+    foldername2 = "10_T1W_C_I_GA_SP"
+
+    plotGraphs(foldername1, foldername2)
+
+    foldername1 = "02_T1W_C_G"
+    foldername2 = "11_T1W_C_G_GA_SP"
+
+    plotGraphs(foldername1, foldername2)
+
+    foldername1 = "03_T1W_C_NH"
+    foldername2 = "12_T1W_C_NH_GA_SP"
+
+    plotGraphs(foldername1, foldername2)
+
     plotWeightedDice()
 
-
-
+    plotNoiseData()
 
 
 

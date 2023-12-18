@@ -1,0 +1,17 @@
+## Random forrest ##
+n_estimators: 10
+max_depth: 30
+
+## Notes ##
+skullstrip_pre: True
+normalization_pre: True
+registration_pre: True
+coordinates_feature: True
+intensity_feature: True
+gradient_intensity_feature: True
+neighborhood_feature: True
+T1W_Image: True
+T2W_Image: False
+gaussian: False
+salt_pepper: False
+training: False
