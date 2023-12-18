@@ -95,19 +95,24 @@ def plotGraphs(foldername1, foldername2):
 
     axes[0].set_title('comparison of dice and hausdorff form T1 and T2')
 
+    cols = dataT1.columns.difference(['LABEL'])
     totalNoiseDataT1 = noiseDataT1[0]
+    totalNoiseDataT1[cols] = totalNoiseDataT1[cols].sub(dataT1[cols])
     totalNoiseDataT2 = []
     if foldername2 != None:
         totalNoiseDataT2 = noiseDataT2[0]
-
-    bla = noiseDataT1[0].set_index(labelName).subtract(dataT1.set_index(labelName))
+        totalNoiseDataT2[cols] = totalNoiseDataT2[cols].sub(dataT2[cols])
 
     for index in range(1, len(fileNameNoise)):
-        totalNoiseDataT1 = pd.concat([totalNoiseDataT1, dataT1.set_index(labelName).subtract(noiseDataT1[index].set_index(labelName))])
+        NoiseBuffer = noiseDataT1[index]
+        NoiseBuffer[cols] = NoiseBuffer[cols].sub(dataT1[cols])
+        totalNoiseDataT1 = pd.concat([totalNoiseDataT1, NoiseBuffer])
 
     if foldername2 != None:
         for index in range(1, len(fileNameNoise)):
-            totalNoiseDataT2 = pd.concat([totalNoiseDataT2, dataT2.set_index(labelName).subtract(noiseDataT2[index].set_index(labelName))])
+            NoiseBuffer = noiseDataT2[index]
+            NoiseBuffer[cols] = NoiseBuffer[cols].sub(dataT2[cols])
+            totalNoiseDataT2 = pd.concat([totalNoiseDataT2, NoiseBuffer])
 
     meanNoiseT1 = []
     maxNoiseT1 = []
@@ -163,8 +168,8 @@ def plotGraphs(foldername1, foldername2):
     if foldername2 != None:
         axes[1].errorbar(labels, meanNoiseT2, yerr=error, fmt='o', elinewidth=elinewidth, capsize=capsize,
                         capthick=capthick, ms=markersize, color=color2)
-    axes[1].set_ylim(0, 1)
-    axes[1].set_yticks(np.arange(0, 1, 0.3))
+    axes[1].set_ylim(-1, 0.25)
+    axes[1].set_yticks(np.arange(-1, 0.25, 0.25))
     axes[1].set_xlim(-0.5, 4.5)
     axes[1].set_ylabel('relative ' + diceName)
     axes[1].set_xlabel(labelName)
