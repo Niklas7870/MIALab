@@ -337,6 +337,21 @@ def main():
 
     plotGraphs(foldername1, foldername2)
 
+    foldername1 = "01_T1W_C_I"
+    foldername2 = "10_T1W_C_I_GA_SP"
+
+    plotGraphs(foldername1, foldername2)
+
+    foldername1 = "02_T1W_C_G"
+    foldername2 = "11_T1W_C_G_GA_SP"
+
+    plotGraphs(foldername1, foldername2)
+
+    foldername1 = "03_T1W_C_NH"
+    foldername2 = "12_T1W_C_NH_GA_SP"
+
+    plotGraphs(foldername1, foldername2)
+
     plotWeightedDice()
 
     plotNoiseData()
