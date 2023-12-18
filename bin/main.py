@@ -15,6 +15,8 @@ import numpy as np
 import pymia.data.conversion as conversion
 import pymia.evaluation.writer as writer
 
+import csv
+
 try:
     import mialab.data.structure as structure
     import mialab.utilities.file_access_utilities as futil
@@ -259,7 +261,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
         result_file = os.path.join(result_dir, 'results'+test_str+'.csv')
         writer.CSVWriter(result_file).write(evaluator.results)
 
-        import csv
+
 
         result_file = os.path.join(result_dir, 'weightedDiceScore'+test_str+'.csv')
         file = open(result_file, 'w', encoding='UTF8', newline='')
