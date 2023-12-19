@@ -5,10 +5,10 @@ import pandas as pd
 import os
 
 workdirectery = 'mia-result/'
-folderNames = ["00_C", "01_T1W_C_I", "02_T1W_C_G", "03_T1W_C_NH", "04_T1W_C_I_G_NH", "05_T2W_C_I", "06_T2W_C_G", "07_T2W_C_NH",
-               "08_T2W_C_I_G_NH", "09_T1W_T2W_C_I_G_NH"]
+folderNames = ["00_C", "01_T1W_C_I", "02_T1W_C_G", "03_T1W_C_NH", "04_T1W_C_I_G_NH", "05_T2W_C_I", "06_T2W_C_G",
+               "07_T2W_C_NH", "08_T2W_C_I_G_NH", "09_T1W_T2W_C_I_G_NH"]
 
-plotLabels = ["0", "1_T1-I", "2_T1-G", "3_T1-NH", "4_T1-I-G-NH", "5_T2-C-I", "6_T2-G", "7_T2-NH", "8_T2-I-G-NH",
+plotLabels = ["0_C", "1_T1-I", "2_T1-G", "3_T1-NH", "4_T1-I-G-NH", "5_T2-C-I", "6_T2-G", "7_T2-NH", "8_T2-I-G-NH",
                   "9_T1-T2-I-G-NH"]
 
 fileNameNoise = ['_gaussian_300', '_gaussian_1000', '_gaussian_2000', '_gaussian_5000', '_salt_pepper_001',
@@ -18,14 +18,16 @@ axisLabels = ['Amygdala', 'GreyMatter', 'Hippocampus', 'Thalamus', 'WhiteMatter'
 
 color1 = '#ED7D31'
 color2 = '#70AD47'
-color31 = '#843C0C'
-color32 = '#385723'
+color31 = '#F4B183'
+color32 = '#A9D18E'
 colorGray = '#D9D9D9'
+
+fontsizeLabels = 12
 
 flierprop1 = dict(markeredgecolor=color1)
 flierprop2 = dict(markeredgecolor=color2)
 
-def plotGraphs(foldername1, foldername2):
+def plotGraphs(foldername1, foldername2, graphTitle, exeption):
 
     fileNameOrigin = 'results'
 
@@ -58,7 +60,7 @@ def plotGraphs(foldername1, foldername2):
     #figure, axis1 = plt.subplot()
     #axis2 = axis1.twinx()
 
-    fig, axes = plt.subplots(nrows=2, figsize=(10, 7), gridspec_kw={'height_ratios': [4, 1], 'hspace': 0.4})
+    fig, axes = plt.subplots(nrows=2, figsize=(10, 7), gridspec_kw={'height_ratios': [4, 1], 'hspace': 0.45})
     ax2 = axes[0].twinx()
 
     rotation = 0
@@ -72,7 +74,7 @@ def plotGraphs(foldername1, foldername2):
 
     dfT1 = pd.DataFrame([[0.8, mean[0]], [1.8, mean[1]], [2.8, mean[2]], [3.8, mean[3]], [4.8, mean[4]]],
                       columns=[labelName, 'hausdorff distance'])
-    dfT1.plot.scatter(x=labelName, y='hausdorff distance', color=color31, ax=ax2, s=dotSize)
+    dfT1.plot.scatter(x=labelName, y='hausdorff distance', color=color31, ax=ax2, s=dotSize, edgecolors='#7F7F7F')
 
     if foldername2 != None:
         mean = []
@@ -83,7 +85,7 @@ def plotGraphs(foldername1, foldername2):
 
         dfT2 = pd.DataFrame([[1.2, mean[0]], [2.2, mean[1]], [3.2, mean[2]], [4.2, mean[3]], [5.2, mean[4]]],
                             columns=[labelName, hausdorffName])
-        dfT2.plot.scatter(x=labelName, y=hausdorffName, color=color32, ax=ax2, s=dotSize)
+        dfT2.plot.scatter(x=labelName, y=hausdorffName, color=color32, ax=ax2, s=dotSize, edgecolors='#7F7F7F')
 
     positionsT1 = np.array(range(1, len(labels) + 1)) - 0.2
     positionsT2 = np.array(range(1, len(labels) + 1)) + 0.2
@@ -98,21 +100,33 @@ def plotGraphs(foldername1, foldername2):
                        flierprops=flierprop2, positions=positionsT2, widths=widths, labels=None)
 
     axes[0].set_ylim(0, 1)
-    axes[0].set_ylabel('dice')
+    axes[0].set_ylabel('Dice Score', fontsize=fontsizeLabels)
     ax2.set_ylim(0, 25)
     ax2.set_yticks(np.arange(0, 25, 5))
-    ax2.set_ylabel('hausdorff distance')
+    ax2.set_ylabel('Hausdorff Distance', fontsize=fontsizeLabels)
     axes[0].grid(axis='y', which='both', color=colorGray, linestyle='-', linewidth=1)
-    patchT1 = mpatches.Patch(color=color1, label='T1w')
-    patchT2 = mpatches.Patch(color=color2, label='T2w')
-    patchDotsT1 = mpatches.Patch(color=color31, label='hausdorff T1w')
-    patchDotsT2= mpatches.Patch(color=color32, label='hausdorff T2w')
+    label1 = 'Dice T1w'
+    label2 = 'Dice T2w'
+    labelDot1 = 'Hausdorff T1w'
+    labelDot2 = 'Hausdorff T2w'
+    if exeption == True:
+        label1 = 'Dice T1w C-I-G-NH'
+        label2 = 'Dice T1w T2w C-G-I-NH'
+        labelDot1 = 'Hausdorff T1w C-I-G-NH'
+        labelDot2 = 'Hausdorff T1w T2w C-G-I-NH'
+    patchT1 = mpatches.Patch(color=color1, label=label1)
+    patchT2 = mpatches.Patch(color=color2, label=label2)
+    patchDotsT1 = mpatches.Patch(color=color31, label=labelDot1)
+    patchDotsT2 = mpatches.Patch(color=color32, label=labelDot2)
     if foldername2 != None:
         axes[0].legend(handles=[patchT1, patchT2, patchDotsT1, patchDotsT2], loc='lower left')
     else:
         axes[0].legend(handles=[patchT1, patchDotsT2], loc='lower left')
 
-    axes[0].set_title('comparison of dice and hausdorff form T1 and T2')
+    axes[0].set_title('Dice and Hausdorff - T1w vs T2w', fontsize=fontsizeLabels)
+
+    if exeption == True:
+        axes[0].set_title('Dice and Hausdorff', fontsize=fontsizeLabels)
 
     cols = dataT1.columns.difference(['LABEL'])
     totalNoiseDataT1 = noiseDataT1[0]
@@ -165,7 +179,6 @@ def plotGraphs(foldername1, foldername2):
             maxNoiseT2.append(dfLabelT2[diceName].max())
             minNoiseT2.append(dfLabelT2[diceName].min())
 
-
     maxErrorT1 = np.subtract(maxNoiseT1, meanNoiseT1)
     minErrorT1 = np.subtract(minNoiseT1, meanNoiseT1)
 
@@ -192,26 +205,34 @@ def plotGraphs(foldername1, foldername2):
     axes[1].set_ylim(-0.6, 0.1)
     axes[1].set_yticks(np.arange(-0.6, 0.1, 0.2))
 
-    axes[1].set_xlim(-0.5, 4.5)
+    axes[1].set_xlim(-0.7, 4.7)
     #axes[1].set_xticks(labels)
-    axes[1].set_ylabel('relative dice')
-    axes[1].set_xlabel('feature combination')
-    axes[1].set_title('relative dice deviation from noise test data')
+    axes[1].set_ylabel('Relative Dice', fontsize=fontsizeLabels)
+    axes[1].set_xlabel('Label', fontsize=fontsizeLabels)
+    axes[1].set_title('Relative Dice (Original vs Noisy Testing-Data) - T1w vs T2w', fontsize=fontsizeLabels)
+    if exeption == True:
+        axes[1].set_title('Relative Dice (Original vs Noisy Testing-Data)', fontsize=fontsizeLabels)
     axes[1].grid(axis='y', which='both', color=colorGray, linestyle='-', linewidth=1)
 
-    axes[0].set_xlabel('feature combination')
+    axes[0].set_xlabel('Labels', fontsize=fontsizeLabels)
     axes[0].set_xticks(range(1, 6))
     axes[0].set_xticklabels(axisLabels)
     axes[0].plot(range(1, 6), [-1, -1, -1, -1, -1])
 
     if foldername2 != None:
-        axes[1].legend(handles=[patchT1, patchT2], loc='center right', bbox_to_anchor=(1.12, 0.5))
-        fig.suptitle("performance of features " + foldername1 + ' and ' + foldername2, fontsize=16)
+        #axes[1].legend(handles=[patchT1, patchT2], loc='lower right', bbox_to_anchor=(1.05, 0.97))
+        #fig.suptitle("performance of features " + foldername1 + ' and ' + foldername2, fontsize=16)
+        fig.suptitle(graphTitle, fontsize=16)
         fig.savefig(os.path.join(workdirectery, foldername1 + '_and_' + foldername2 + '.png'), dpi=600)
     else:
-        axes[1].legend(handles=[patchT1], loc='center right', bbox_to_anchor=(1.12, 0.5))
-        fig.suptitle("performance of features " + foldername1, fontsize=16)
+        #axes[1].legend(handles=[patchT1], loc='lower right', bbox_to_anchor=(1.12, 0.5))
+        #fig.suptitle("performance of features " + foldername1, fontsize=16)
+        fig.suptitle(graphTitle, fontsize=16)
         fig.savefig(os.path.join(workdirectery, foldername1 + '.png'), dpi=600)
+
+    if exeption == True:
+        axes[0].set_ylim(0.3, 0.9)
+        fig.savefig(os.path.join(workdirectery, foldername1 + '_and_' + foldername2 + '_zoomed.png'), dpi=600)
 
 
 def plotWeightedDice():
@@ -258,13 +279,14 @@ def plotWeightedDice():
                      widths=widths)
     # dots.plot(ax = ax2, by=labelName, column=[hausdorffName])
     plt.ylim(0, 1)
-    plt.ylabel('DICE')
-    plt.xlabel("feature combination")
+    plt.ylabel('Dice Score', fontsize=fontsizeLabels)
+    plt.xlabel("Feature Combinations", fontsize=fontsizeLabels)
     plt.grid(axis='y', which='both', color=colorGray, linestyle='-', linewidth=1)
-    plt.title('weighted dice Score')
-    patchWD = mpatches.Patch(color=color1, label='weighted dice')
-    patchD = mpatches.Patch(color=color2, label='dice')
+    plt.title('', fontsize=fontsizeLabels)
+    patchWD = mpatches.Patch(color=color1, label='Weighted-Dice')
+    patchD = mpatches.Patch(color=color2, label='Dice')
     plt.legend(handles=[patchWD, patchD], loc='lower left')
+    plt.suptitle('Dice vs Weighted-Dice', fontsize=16)
     plt.tight_layout()
 
     #plt.show()
@@ -303,7 +325,7 @@ def plotNoiseData():
         dfBuffer['FOLDER'] = [plotLabels[i+1]] * (dfBuffer.shape[0])
         dfDice = pd.concat([dfDice, dfBuffer])
 
-    rotation = 0
+    rotation = 90
 
     positions = np.array(range(1, 4)) - 0.2
     positionsN = np.array(range(1, 4)) + 0.2
@@ -312,22 +334,23 @@ def plotNoiseData():
 
     ax = dfDice.boxplot(by='FOLDER', column=['DICE'], rot=rotation, grid=False, color=color1, flierprops=flierprop1,
                         positions=positions, widths=widths)
-    dfNDice.boxplot(ax=ax, by='FOLDER', column=['DICE'], rot=rotation, grid=False, color=color2, flierprops=flierprop2,
-                    positions=positionsN, widths=widths)
+    dfNDice.boxplot(by='FOLDER', column=['DICE'], rot=rotation, grid=False, color=color2, flierprops=flierprop2,
+                    positions=positionsN, widths=widths, ax=ax)
     # dots.plot(ax = ax2, by=labelName, column=[hausdorffName])
     plt.ylim(0, 1)
-    plt.ylabel('DICE')
-    plt.xlabel("feature combination")
+    plt.ylabel('Dice Score', fontsize=fontsizeLabels)
+    plt.xlabel("Feature Combinations", fontsize=fontsizeLabels)
+    plt.suptitle('Noisy Training-Data vs Original Training-Data', fontsize=16)
     plt.grid(axis='y', which='both', color=colorGray, linestyle='-', linewidth=1)
-    plt.title('noisy dice Score')
-    patchWD = mpatches.Patch(color=color1, label='dice')
-    patchD = mpatches.Patch(color=color2, label='noisy dice')
+    plt.title('')
+    patchWD = mpatches.Patch(color=color1, label='Original Train-Data')
+    patchD = mpatches.Patch(color=color2, label='Noisy Training-Data')
     plt.legend(handles=[patchWD, patchD], loc='lower left')
     plt.tight_layout()
 
     #plt.show()
 
-    plt.savefig(os.path.join(workdirectery, 'noiseStuff.png'), dpi=600)
+    plt.savefig(os.path.join(workdirectery, 'noisyStuff.png'), dpi=600)
 
 
 def main():
@@ -337,50 +360,81 @@ def main():
     # plot the Dice coefficients per label (i.e. white matter, gray matter, hippocampus, amygdala, thalamus)
     # in a boxplot
 
-    foldername1 = "00_C"
-    foldername2 = "09_T1W_T2W_C_I_G_NH"
+    #foldername1 = "00_C"
+    #foldername2 = "09_T1W_T2W_C_I_G_NH"
 
-    plotGraphs(foldername1, foldername2)
+    #plotGraphs(foldername1, foldername2)
+
+    # foldername1 = "04_T1W_C_I_G_NH"
+    # foldername2 = "09_T1W_T2W_C_I_G_NH"
+    #
+    # dfBuffer = pd.read_csv(workdirectery + "04_T1W_C_I_G_NH" + '/' + 'results' + '.csv',
+    #                            sep=';', header=0)
+    #
+    # dataDice = pd.DataFrame()
+    #
+    #   # individual subjects (label mean value)
+    # subjects = dfBuffer['LABEL'].unique()
+    # for subject in subjects:
+    #     dfsubject = dfBuffer[dfBuffer['LABEL'] == subject]
+    #     meanDice = dfsubject['DICE'].mean()
+    #     dfS = pd.DataFrame([[subject, meanDice]],
+    #                            columns=['LABEL', 'DICE'])
+    #     dataDice = pd.concat([dataDice, dfS])
+
 
     foldername1 = "01_T1W_C_I" # must be adjusted
     foldername2 = "05_T2W_C_I" # must be adjusted
+    graphTitle = "Segmentation Quality - Intensity-Feature"
 
-    plotGraphs(foldername1, foldername2)
+    plotGraphs(foldername1, foldername2, graphTitle, False)
 
     foldername1 = "02_T1W_C_G" # must be adjusted
     foldername2 = "06_T2W_C_G" # must be adjusted
+    graphTitle = "Segmentation Quality - Gradient-Feature"
 
-    plotGraphs(foldername1, foldername2)
+    plotGraphs(foldername1, foldername2, graphTitle, False)
 
     foldername1 = "03_T1W_C_NH" # must be adjusted
     foldername2 = "07_T2W_C_NH" # must be adjusted
+    graphTitle = "Segmentation Quality - Neighborhood-Feature"
 
-    plotGraphs(foldername1, foldername2)
+    plotGraphs(foldername1, foldername2, graphTitle, False)
 
     foldername1 = "04_T1W_C_I_G_NH" # must be adjusted
     foldername2 = "08_T2W_C_I_G_NH" # must be adjusted
+    graphTitle = "Segmentation Quality - Intensity-, Gradient- and Neighborhood-Feature"
 
-    plotGraphs(foldername1, foldername2)
+    plotGraphs(foldername1, foldername2, graphTitle, False)
 
-    foldername1 = "09_T1W_T2W_C_I_G_NH"
-    foldername2 = None
+    #foldername1 = "09_T1W_T2W_C_I_G_NH"
+    #foldername2 = None
 
-    plotGraphs(foldername1, foldername2)
+    #plotGraphs(foldername1, foldername2)
 
-    foldername1 = "01_T1W_C_I"
-    foldername2 = "10_T1W_C_I_GA_SP"
+    # foldername1 = "01_T1W_C_I"
+    # foldername2 = "10_T1W_C_I_GA_SP"
+    # graphTitle = "Quality of segmentation of the Intensity-Feature, trained with and without noise"
+    #
+    # plotGraphs(foldername1, foldername2, graphTitle, True)
+    #
+    # foldername1 = "02_T1W_C_G"
+    # foldername2 = "11_T1W_C_G_GA_SP"
+    # graphTitle = "Quality of segmentation of the Gradient-Feature, trained with and without noise"
+    #
+    # plotGraphs(foldername1, foldername2, graphTitle, True)
+    #
+    # foldername1 = "03_T1W_C_NH"
+    # foldername2 = "12_T1W_C_NH_GA_SP"
+    # graphTitle = "Quality of segmentation of the Neighborhood-Feature, trained with and without noise"
+    #
+    # plotGraphs(foldername1, foldername2, graphTitle, True)
 
-    plotGraphs(foldername1, foldername2)
+    foldername1 = "04_T1W_C_I_G_NH"
+    foldername2 = "09_T1W_T2W_C_I_G_NH"
+    graphTitle = "Segmentation Quality - Top Two Results"
 
-    foldername1 = "02_T1W_C_G"
-    foldername2 = "11_T1W_C_G_GA_SP"
-
-    plotGraphs(foldername1, foldername2)
-
-    foldername1 = "03_T1W_C_NH"
-    foldername2 = "12_T1W_C_NH_GA_SP"
-
-    plotGraphs(foldername1, foldername2)
+    plotGraphs(foldername1, foldername2, graphTitle, True)
 
     plotWeightedDice()
 
