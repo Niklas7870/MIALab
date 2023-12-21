@@ -36,6 +36,7 @@ LOADING_KEYS = [structure.BrainImageTypes.T1w,
                 structure.BrainImageTypes.BrainMask,
                 structure.BrainImageTypes.RegistrationTransform]  # the list of data we will load
 
+# maps the number to the according labels
 label_mapping = {
             0: 'Background',
             1: 'WhiteMatter',
@@ -45,7 +46,7 @@ label_mapping = {
             5: 'Thalamus'
         }
 
-
+# this function extracts the dice scores out of the evaluator.results class
 def getDiceScores(results):
     uniqueLabes = set(results.label for results in results if results.metric == 'DICE')
     diceScore = {}
@@ -57,16 +58,19 @@ def calculateWeightedDiceScore(buffer, diceScore):
 
     totalSegVolume = 0
 
+    # calculate the part under the fraction line --> sum(1/seg. volume)
     for index in range(1, 6):
         if np.sum(buffer==index) != 0:
             totalSegVolume += 1/float(np.sum(buffer==index))
 
     diceSumWithArea = 0
 
+    # calculate the part above the fraction line --> sum(dice/seg. volume)
     for index in range(0, 5):
         if np.sum(buffer==index+1) != 0:
             diceSumWithArea += diceScore[index] / float(np.sum(buffer==index+1))
 
+    # compute the final result
     weightedDice = diceSumWithArea / totalSegVolume
 
     return weightedDice
@@ -87,6 +91,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
         - Evaluation of the segmentation
     """
 
+    # set the np random on a const behaviour to get always the same results
     np.random.seed(42)
 
     # load atlas images
@@ -220,18 +225,24 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
         #stardtodo
         # --> postprocessing removed
 
+        # get all dice scores
         diceScores = getDiceScores(evaluator.results)
 
+        # generate an empty matrix
         weightedDiceScore = np.zeros((images_test.__len__(), 2))
         counter = 0
 
+        # go through all images and calculate the weighted dice
         for img in images_test:
 
+            # get a pointer to calculate the area
             buffer = sitk.GetArrayFromImage(img.images[structure.BrainImageTypes.GroundTruth])
             diceList = []
+            # make a list of all scores
             for index in range(1, 6):
                 diceList.append(diceScores[label_mapping[index]][counter])
 
+            # fill the matrix with subject number and according dice score
             weightedDiceScore[counter][0] = int(img.id_)
             weightedDiceScore[counter][1] = calculateWeightedDiceScore(buffer, diceList)
 
@@ -262,7 +273,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
         writer.CSVWriter(result_file).write(evaluator.results)
 
 
-
+        # write out the weighted dice score in a .csv file
         result_file = os.path.join(result_dir, 'weightedDiceScore'+test_str+'.csv')
         file = open(result_file, 'w', encoding='UTF8', newline='')
         writerCsv = csv.writer(file)
