@@ -146,7 +146,6 @@ class ImageRegistration(pymia_fltr.Filter):
         transform = params.transformation
         is_ground_truth = params.is_ground_truth  # the ground truth will be handled slightly different
 
-        # todo image registration needed?
         if is_ground_truth:
             image = sitk.Resample(image1=image, referenceImage=atlas, transform=transform,
                                   interpolator=sitk.sitkNearestNeighbor, defaultPixelValue=0.0, outputPixelType=image.GetPixelIDValue())

@@ -2,8 +2,8 @@ import os
 import SimpleITK as sitk
 
 def main():
-    # resample test images to atlas image (same size --> segmentation overlay)
-    # and save them
+    # resample test images to atlas image (same size --> segmentation overlay) and save them
+    # can be used for segmentation overlay on T1, T2 image
 
     script_dir = os.path.dirname(os.path.realpath(__file__))
     atlas_dir = os.path.join(script_dir, '../data/atlas')

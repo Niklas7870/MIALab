@@ -4,6 +4,11 @@ import numpy as np
 import pandas as pd
 import os
 
+
+# generates plots used in final presentation and report (dice, weighted dice (boxplots), robustness)
+# after training and evaluating the models the individual result folder names or the list folderNames must be adjusted
+# to have the same name, otherwise this script will not work.
+
 # path and names for data handling
 workdirectery = 'mia-result/'
 folderNames = ["00_C", "01_T1W_C_I", "02_T1W_C_G", "03_T1W_C_NH", "04_T1W_C_I_G_NH", "05_T2W_C_I", "06_T2W_C_G",
@@ -24,7 +29,7 @@ color31 = '#F4B183'
 color32 = '#A9D18E'
 colorGray = '#D9D9D9'
 
-# design definitions for ploting
+# design definitions for plotting
 fontsizeLabels = 12
 flierprop1 = dict(markeredgecolor=color1)
 flierprop2 = dict(markeredgecolor=color2)

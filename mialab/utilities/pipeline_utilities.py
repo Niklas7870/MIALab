@@ -63,6 +63,7 @@ class FeatureExtractor:
         Args:
             img (structure.BrainImage): The image to extract features from.
         """
+        #starttodo
         self.img = img
         self.training = kwargs.get('training', True)
         self.coordinates_feature = kwargs.get('coordinates_feature', False)
@@ -73,6 +74,7 @@ class FeatureExtractor:
         self.t2 = kwargs.get('T2W_Image', False)
         self.gaussian = kwargs.get('gaussian', False)
         self.salt_pepper = kwargs.get('salt_pepper', False)
+        #stoptodo
 
 
     def execute(self) -> structure.BrainImage:
@@ -83,6 +85,7 @@ class FeatureExtractor:
         """
         #starttodo
         # add T2w features
+        # add Neighbourhood, Gaussian, salt & pepper
         # warnings.warn('No features from T2-weighted image extracted.')
 
         if self.coordinates_feature:
@@ -129,7 +132,7 @@ class FeatureExtractor:
             if self.t2:
                 self.img.feature_images[FeatureImageTypes.T2w_SALT_PEPPER] = \
                     sitk.SaltAndPepperNoise(self.img.images[structure.BrainImageTypes.T2w], probability=0.02, seed=42)
-        #endtodo
+        #stoptodo
 
         self._generate_feature_matrix()
 
