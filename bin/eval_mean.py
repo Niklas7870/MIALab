@@ -3,8 +3,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 def main():
-    # evaluation of different randomforest parameters --> later used as baseline (before adding features)
-    # as well as comparison of results for different feature extractions
+    # starttodo
+    # evaluation of different randomforest parameters --> later used as baseline (before adding/removing features)
+    # as well as comparison of results for different feature combinations
     # --> calculates the mean of the evaluation metric over all subjects and labels
 
     foldername = os.path.dirname(os.path.realpath(__file__)) + '/mia-result'
@@ -32,7 +33,6 @@ def main():
                 dfS = pd.DataFrame([[subject, meanDICE, meanHDRFDST, meanACCURACY, dir]], columns=['SUBJECT', 'DICE', 'HDRFDST', 'ACURCY', 'FOLDER'])
                 dataS = pd.concat([dataS, dfS])
 
-
     dataLS = dataLS.set_index('FOLDER')
     dataS = dataS.set_index('FOLDER')
 
@@ -50,7 +50,7 @@ def main():
 
     rotation = 90
 
-    # dice and hausdorffdistance per folder (over all subject & labels)
+    # dice, hausdorffdistance, accuracy per folder (over all subject & labels)
     Dice_meanLS = dataLS.boxplot(by='FOLDER', column=['DICE'], rot=rotation, grid=False).get_figure()
     plt.xlabel(folderName)
     plt.ylabel(diceName)
@@ -64,7 +64,7 @@ def main():
     plt.ylabel(ACCURACYName)
     plt.ylim(ACCURACYYlimLS)
 
-    # dice and hausdorffdistance per folder (over all subject (label mean value))
+    # dice, hausdorffdistance, accuracy per folder (over all subject (label mean value))
     Dice_meanS = dataS.boxplot(by='FOLDER', column=['DICE'], rot=rotation, grid=False).get_figure()
     plt.xlabel(folderName)
     plt.ylabel(diceName)
@@ -100,7 +100,7 @@ def main():
 
     #plt.show()
 
-
+    #stoptodo
 
 if __name__ == '__main__':
     main()

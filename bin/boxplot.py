@@ -11,6 +11,7 @@ def main():
     # plot the Dice coefficients per label (i.e. white matter, gray matter, hippocampus, amygdala, thalamus)
     # in a boxplot
 
+    # generate boxplots for all metrics (per label / per subject)
     work_directory = os.path.dirname(os.path.realpath(__file__)) + '/mia-result'
     def all_subdirs_of(b=work_directory):
         result = []
@@ -28,6 +29,7 @@ def main():
         #foldername = "2023-12-06-09-58-32.078T1W_C_I_G_" # must be adjusted
         #directory = os.path.join('mia-result', foldername)
 
+        # all test sets
         test_loop_parameter = ["", "_gaussian_300", "_gaussian_1000", "_gaussian_2000", "_gaussian_5000",
                                "_salt_pepper_001", "_salt_pepper_002", "_salt_pepper_005"]
 
@@ -40,7 +42,7 @@ def main():
             diceName = 'DICE'
             diceYlim = [0, 1]
             HDRFDSTName = 'HDRFDST'
-            HDRFDSTYlim = [0, 20] # upper limit probably must be adjusted
+            HDRFDSTYlim = [0, 20]
             accuracyName = 'ACURCY'
             accuracyYlim = [0, 1]
             subjectName = 'Subject'
@@ -94,13 +96,13 @@ def main():
             Accuracy_allL.tight_layout()
             Accuracy_allL.savefig(os.path.join(directory, 'Accuracy_allL' + test_str + '.png'), dpi=600)
 
+            # weighted Dice
             filename = "weightedDiceScore" + test_str + ".csv"
             filepath = os.path.join(directory, filename)
             data = pd.read_csv(filepath, sep=',', header=0, index_col=["SUBJECT"])
 
             diceName = 'weightedDice'
 
-            # dice and housdorffdistance per subject (over all labels)
             weightedDice = data.boxplot(by='SUBJECT', column=['DICE'], rot=45, grid=True).get_figure()
             plt.xlabel(subjectName)
             plt.ylabel(diceName)

@@ -30,6 +30,9 @@ except ImportError:
     import mialab.utilities.pipeline_utilities as putil
     import bin.test_set_creation as tset
 
+
+# starttodo and stopdodo are markers --> where changes to the pipeline were made
+
 LOADING_KEYS = [structure.BrainImageTypes.T1w,
                 structure.BrainImageTypes.T2w,
                 structure.BrainImageTypes.GroundTruth,
@@ -87,7 +90,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
         - Feature extraction
         - Decision forest classifier model building
         - Segmentation using the decision forest classifier model on unseen images
-        - Post-processing of the segmentation
+        - Post-processing of the segmentation --> not used
         - Evaluation of the segmentation
     """
 
@@ -118,7 +121,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
                           'gaussian': False,
                           'salt_pepper': False}
 
-    multiprocess = False
+    multiprocess = False # change to true on UBELIX
 
     # load images for training and pre-process
     images = putil.pre_process_batch(crawler.data, pre_process_params, multi_process=multiprocess)
@@ -149,7 +152,6 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
 
     #starttodo
     # create a result directory with timestamp
-
     name = ''
     for key, value in pre_process_params.items():
         if key == 'T1W_Image':
@@ -179,13 +181,18 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
 
     print('-' * 5, 'Testing...')
 
+    #starttodo
+    # generate noisy test data from original test data
     test_loop_parameter = ["", "_gaussian_300", "_gaussian_1000", "_gaussian_2000", "_gaussian_5000",
                                "_salt_pepper_001", "_salt_pepper_002", "_salt_pepper_005"]
-
     tset.main()
+    #stoptodo
 
+    #starttodo
+    # loops thorough all test datasets for evaluation
     for test_str in test_loop_parameter:
         test_dir = data_test_dir + test_str
+    #stoptodo
 
         # initialize evaluator
         evaluator = putil.init_evaluator()
@@ -222,9 +229,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
             images_prediction.append(image_prediction)
             images_probabilities.append(image_probabilities)
 
-        #stardtodo
-        # --> postprocessing removed
-
+        # starttodo
         # get all dice scores
         diceScores = getDiceScores(evaluator.results)
 
@@ -248,7 +253,9 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
 
             counter += 1
 
-        #stardtodo
+        #stoptodo
+
+        #starttodo
         # --> postprocessing removed
 
         # post-process segmentation and evaluate with post-processing
@@ -265,13 +272,13 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
             # sitk.WriteImage(images_post_processed[i], os.path.join(result_dir, images_test[i].id_ + '_SEG-PP.mha'), True)
             if test_str != "":
                 break
-        #endtodo
+        #stoptodo
 
+        #starttodo
         # use two writers to report the results
         os.makedirs(result_dir, exist_ok=True)  # generate result directory, if it does not exists
         result_file = os.path.join(result_dir, 'results'+test_str+'.csv')
         writer.CSVWriter(result_file).write(evaluator.results)
-
 
         # write out the weighted dice score in a .csv file
         result_file = os.path.join(result_dir, 'weightedDiceScore'+test_str+'.csv')
@@ -279,6 +286,7 @@ def main(result_dir: str, data_atlas_dir: str, data_train_dir: str, data_test_di
         writerCsv = csv.writer(file)
         writerCsv.writerow(['SUBJECT', 'DICE'])
         writerCsv.writerows(weightedDiceScore)
+        #stoptodo
 
         print('\nSubject-wise results...')
         writer.ConsoleWriter().write(evaluator.results)

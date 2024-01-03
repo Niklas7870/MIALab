@@ -3,7 +3,7 @@ import SimpleITK as sitk
 import shutil
 
 def main():
-    # copy paste complete test folder and add noise
+    # copy paste complete test folder and generate noisy test datasets (gaussian, salt & pepper noise)
 
     script_dir = os.path.dirname(os.path.realpath(__file__))
     test_dir = os.path.join(script_dir, '../data/test')
